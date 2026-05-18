@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:app/repositories/workout_repository.dart';
 import 'package:app/repositories/mock_workout_repository.dart';
+import 'package:app/models/routine.dart';
 import 'package:app/models/workout_session.dart';
 import 'package:app/models/personal_record.dart';
 

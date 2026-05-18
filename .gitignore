@@ -6,4 +6,11 @@ build/
 .flutter-plugins-dependencies
 .idea/
 *.iml
-.dart_analyze_output
+android/.gradle
+ios/Pods
+ios/.symlinks
+ios/Flutter/Flutter.podspec
+web/
+ios/Runner/Assets.xcassets/
+android/app/src/main/res/
+.metadata
