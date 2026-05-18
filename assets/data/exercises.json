@@ -1,0 +1,422 @@
+[
+  {
+    "id": "e1",
+    "name": "Barbell Bench Press",
+    "muscleGroup": "Chest",
+    "equipment": "Barbell",
+    "difficulty": "Intermediate"
+  },
+  {
+    "id": "e2",
+    "name": "Incline Dumbbell Press",
+    "muscleGroup": "Chest",
+    "equipment": "Dumbbell",
+    "difficulty": "Intermediate"
+  },
+  {
+    "id": "e3",
+    "name": "Push-ups",
+    "muscleGroup": "Chest",
+    "equipment": "Bodyweight",
+    "difficulty": "Beginner"
+  },
+  {
+    "id": "e4",
+    "name": "Cable Crossover",
+    "muscleGroup": "Chest",
+    "equipment": "Cable",
+    "difficulty": "Intermediate"
+  },
+  {
+    "id": "e5",
+    "name": "Barbell Squat",
+    "muscleGroup": "Legs",
+    "equipment": "Barbell",
+    "difficulty": "Advanced"
+  },
+  {
+    "id": "e6",
+    "name": "Leg Press",
+    "muscleGroup": "Legs",
+    "equipment": "Machine",
+    "difficulty": "Beginner"
+  },
+  {
+    "id": "e7",
+    "name": "Romanian Deadlift",
+    "muscleGroup": "Legs",
+    "equipment": "Barbell",
+    "difficulty": "Intermediate"
+  },
+  {
+    "id": "e8",
+    "name": "Leg Extension",
+    "muscleGroup": "Legs",
+    "equipment": "Machine",
+    "difficulty": "Beginner"
+  },
+  {
+    "id": "e9",
+    "name": "Pull-ups",
+    "muscleGroup": "Back",
+    "equipment": "Bodyweight",
+    "difficulty": "Intermediate"
+  },
+  {
+    "id": "e10",
+    "name": "Lat Pulldown",
+    "muscleGroup": "Back",
+    "equipment": "Cable",
+    "difficulty": "Beginner"
+  },
+  {
+    "id": "e11",
+    "name": "Barbell Row",
+    "muscleGroup": "Back",
+    "equipment": "Barbell",
+    "difficulty": "Intermediate"
+  },
+  {
+    "id": "e12",
+    "name": "Seated Cable Row",
+    "muscleGroup": "Back",
+    "equipment": "Cable",
+    "difficulty": "Beginner"
+  },
+  {
+    "id": "e13",
+    "name": "Overhead Press",
+    "muscleGroup": "Shoulders",
+    "equipment": "Barbell",
+    "difficulty": "Intermediate"
+  },
+  {
+    "id": "e14",
+    "name": "Lateral Raise",
+    "muscleGroup": "Shoulders",
+    "equipment": "Dumbbell",
+    "difficulty": "Beginner"
+  },
+  {
+    "id": "e15",
+    "name": "Front Raise",
+    "muscleGroup": "Shoulders",
+    "equipment": "Dumbbell",
+    "difficulty": "Beginner"
+  },
+  {
+    "id": "e16",
+    "name": "Barbell Curl",
+    "muscleGroup": "Arms",
+    "equipment": "Barbell",
+    "difficulty": "Beginner"
+  },
+  {
+    "id": "e17",
+    "name": "Tricep Pushdown",
+    "muscleGroup": "Arms",
+    "equipment": "Cable",
+    "difficulty": "Beginner"
+  },
+  {
+    "id": "e18",
+    "name": "Hammer Curl",
+    "muscleGroup": "Arms",
+    "equipment": "Dumbbell",
+    "difficulty": "Beginner"
+  },
+  {
+    "id": "e19",
+    "name": "Overhead Tricep Extension",
+    "muscleGroup": "Arms",
+    "equipment": "Dumbbell",
+    "difficulty": "Intermediate"
+  },
+  {
+    "id": "e20",
+    "name": "Crunch",
+    "muscleGroup": "Core",
+    "equipment": "Bodyweight",
+    "difficulty": "Beginner"
+  },
+  {
+    "id": "e21",
+    "name": "Plank",
+    "muscleGroup": "Core",
+    "equipment": "Bodyweight",
+    "difficulty": "Beginner"
+  },
+  {
+    "id": "e22",
+    "name": "Russian Twist",
+    "muscleGroup": "Core",
+    "equipment": "Bodyweight",
+    "difficulty": "Intermediate"
+  },
+  {
+    "id": "e23",
+    "name": "Deadlift",
+    "muscleGroup": "Back",
+    "equipment": "Barbell",
+    "difficulty": "Advanced"
+  },
+  {
+    "id": "e24",
+    "name": "Dumbbell Flyes",
+    "muscleGroup": "Chest",
+    "equipment": "Dumbbell",
+    "difficulty": "Intermediate"
+  },
+  {
+    "id": "e25",
+    "name": "Pec Deck Machine",
+    "muscleGroup": "Chest",
+    "equipment": "Machine",
+    "difficulty": "Beginner"
+  },
+  {
+    "id": "e26",
+    "name": "Front Squat",
+    "muscleGroup": "Legs",
+    "equipment": "Barbell",
+    "difficulty": "Advanced"
+  },
+  {
+    "id": "e27",
+    "name": "Bulgarian Split Squat",
+    "muscleGroup": "Legs",
+    "equipment": "Dumbbell",
+    "difficulty": "Intermediate"
+  },
+  {
+    "id": "e28",
+    "name": "Calf Raise",
+    "muscleGroup": "Legs",
+    "equipment": "Machine",
+    "difficulty": "Beginner"
+  },
+  {
+    "id": "e29",
+    "name": "Leg Curl",
+    "muscleGroup": "Legs",
+    "equipment": "Machine",
+    "difficulty": "Beginner"
+  },
+  {
+    "id": "e30",
+    "name": "T-Bar Row",
+    "muscleGroup": "Back",
+    "equipment": "Machine",
+    "difficulty": "Intermediate"
+  },
+  {
+    "id": "e31",
+    "name": "Chin-ups",
+    "muscleGroup": "Back",
+    "equipment": "Bodyweight",
+    "difficulty": "Intermediate"
+  },
+  {
+    "id": "e32",
+    "name": "Dumbbell Row",
+    "muscleGroup": "Back",
+    "equipment": "Dumbbell",
+    "difficulty": "Beginner"
+  },
+  {
+    "id": "e33",
+    "name": "Arnold Press",
+    "muscleGroup": "Shoulders",
+    "equipment": "Dumbbell",
+    "difficulty": "Intermediate"
+  },
+  {
+    "id": "e34",
+    "name": "Face Pulls",
+    "muscleGroup": "Shoulders",
+    "equipment": "Cable",
+    "difficulty": "Intermediate"
+  },
+  {
+    "id": "e35",
+    "name": "Reverse Pec Deck",
+    "muscleGroup": "Shoulders",
+    "equipment": "Machine",
+    "difficulty": "Beginner"
+  },
+  {
+    "id": "e36",
+    "name": "Preacher Curl",
+    "muscleGroup": "Arms",
+    "equipment": "Barbell",
+    "difficulty": "Intermediate"
+  },
+  {
+    "id": "e37",
+    "name": "Concentration Curl",
+    "muscleGroup": "Arms",
+    "equipment": "Dumbbell",
+    "difficulty": "Beginner"
+  },
+  {
+    "id": "e38",
+    "name": "Skullcrushers",
+    "muscleGroup": "Arms",
+    "equipment": "Barbell",
+    "difficulty": "Intermediate"
+  },
+  {
+    "id": "e39",
+    "name": "Dips",
+    "muscleGroup": "Arms",
+    "equipment": "Bodyweight",
+    "difficulty": "Intermediate"
+  },
+  {
+    "id": "e40",
+    "name": "Hanging Leg Raise",
+    "muscleGroup": "Core",
+    "equipment": "Bodyweight",
+    "difficulty": "Intermediate"
+  },
+  {
+    "id": "e41",
+    "name": "Ab Wheel Rollout",
+    "muscleGroup": "Core",
+    "equipment": "Other",
+    "difficulty": "Advanced"
+  },
+  {
+    "id": "e42",
+    "name": "Bicycle Crunch",
+    "muscleGroup": "Core",
+    "equipment": "Bodyweight",
+    "difficulty": "Beginner"
+  },
+  {
+    "id": "e43",
+    "name": "Dumbbell Bench Press",
+    "muscleGroup": "Chest",
+    "equipment": "Dumbbell",
+    "difficulty": "Intermediate"
+  },
+  {
+    "id": "e44",
+    "name": "Incline Barbell Press",
+    "muscleGroup": "Chest",
+    "equipment": "Barbell",
+    "difficulty": "Intermediate"
+  },
+  {
+    "id": "e45",
+    "name": "Chest Dip",
+    "muscleGroup": "Chest",
+    "equipment": "Bodyweight",
+    "difficulty": "Advanced"
+  },
+  {
+    "id": "e46",
+    "name": "Hack Squat",
+    "muscleGroup": "Legs",
+    "equipment": "Machine",
+    "difficulty": "Intermediate"
+  },
+  {
+    "id": "e47",
+    "name": "Walking Lunges",
+    "muscleGroup": "Legs",
+    "equipment": "Dumbbell",
+    "difficulty": "Intermediate"
+  },
+  {
+    "id": "e48",
+    "name": "Seated Calf Raise",
+    "muscleGroup": "Legs",
+    "equipment": "Machine",
+    "difficulty": "Beginner"
+  },
+  {
+    "id": "e49",
+    "name": "Good Mornings",
+    "muscleGroup": "Legs",
+    "equipment": "Barbell",
+    "difficulty": "Advanced"
+  },
+  {
+    "id": "e50",
+    "name": "Pendlay Row",
+    "muscleGroup": "Back",
+    "equipment": "Barbell",
+    "difficulty": "Advanced"
+  },
+  {
+    "id": "e51",
+    "name": "Straight Arm Pulldown",
+    "muscleGroup": "Back",
+    "equipment": "Cable",
+    "difficulty": "Intermediate"
+  },
+  {
+    "id": "e52",
+    "name": "Rack Pulls",
+    "muscleGroup": "Back",
+    "equipment": "Barbell",
+    "difficulty": "Advanced"
+  },
+  {
+    "id": "e53",
+    "name": "Seated Dumbbell Press",
+    "muscleGroup": "Shoulders",
+    "equipment": "Dumbbell",
+    "difficulty": "Intermediate"
+  },
+  {
+    "id": "e54",
+    "name": "Upright Row",
+    "muscleGroup": "Shoulders",
+    "equipment": "Barbell",
+    "difficulty": "Intermediate"
+  },
+  {
+    "id": "e55",
+    "name": "Shrugs",
+    "muscleGroup": "Shoulders",
+    "equipment": "Dumbbell",
+    "difficulty": "Beginner"
+  },
+  {
+    "id": "e56",
+    "name": "Cable Curl",
+    "muscleGroup": "Arms",
+    "equipment": "Cable",
+    "difficulty": "Beginner"
+  },
+  {
+    "id": "e57",
+    "name": "Close Grip Bench Press",
+    "muscleGroup": "Arms",
+    "equipment": "Barbell",
+    "difficulty": "Intermediate"
+  },
+  {
+    "id": "e58",
+    "name": "Tricep Kickback",
+    "muscleGroup": "Arms",
+    "equipment": "Dumbbell",
+    "difficulty": "Beginner"
+  },
+  {
+    "id": "e59",
+    "name": "V-Ups",
+    "muscleGroup": "Core",
+    "equipment": "Bodyweight",
+    "difficulty": "Intermediate"
+  },
+  {
+    "id": "e60",
+    "name": "Dragon Flag",
+    "muscleGroup": "Core",
+    "equipment": "Bodyweight",
+    "difficulty": "Advanced"
+  }
+]
