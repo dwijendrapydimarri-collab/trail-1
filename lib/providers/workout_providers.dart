@@ -13,6 +13,11 @@ final workoutHistoryProvider = FutureProvider.family<List<WorkoutSession>, Strin
   return repo.getWorkoutHistory(userId);
 });
 
+final routinesProvider = FutureProvider.family<List<Routine>, String>((ref, userId) {
+  final repo = ref.watch(workoutRepositoryProvider);
+  return repo.getRoutines(userId);
+});
+
 final personalRecordsProvider = FutureProvider.family<List<PersonalRecord>, String>((ref, userId) {
   final repo = ref.watch(workoutRepositoryProvider);
   return repo.getPersonalRecords(userId);

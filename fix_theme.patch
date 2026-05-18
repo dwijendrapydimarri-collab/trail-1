@@ -1,0 +1,11 @@
+--- lib/ui/theme/app_theme.dart
++++ lib/ui/theme/app_theme.dart
+@@ -42,7 +42,7 @@
+         type: BottomNavigationBarType.fixed,
+         elevation: 8,
+       ),
+-      cardTheme: CardTheme(
++      cardTheme: const CardTheme(
+         color: surfaceColor,
+         elevation: 4,
+       ),

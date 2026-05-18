@@ -5,6 +5,8 @@ import 'package:app/models/set_log.dart';
 import 'package:app/ui/screens/exercise_library_screen.dart';
 import 'package:app/ui/theme/app_theme.dart';
 import 'package:uuid/uuid.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:app/providers/workout_providers.dart';
 
 class RoutineBuilderScreen extends StatefulWidget {
   final Routine? initialRoutine;
@@ -89,7 +91,17 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
       exercises: _exercises,
     );
 
-    Navigator.of(context).pop(routine);
+    // Hardcoded user ID for demo purposes
+    const userId = 'user_123';
+
+    // Assuming context has a ProviderScope ancestor
+    final container = ProviderScope.containerOf(context);
+    final repo = container.read(workoutRepositoryProvider);
+    repo.saveRoutine(routine).then((_) {
+      if (mounted) {
+        Navigator.of(context).pop(routine);
+      }
+    });
   }
 
   @override

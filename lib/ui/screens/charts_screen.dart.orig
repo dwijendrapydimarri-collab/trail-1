@@ -1,20 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:app/ui/theme/app_theme.dart';
-import 'package:app/providers/workout_providers.dart';
-import 'package:app/models/workout_session.dart';
-import 'package:app/models/personal_record.dart';
-import 'package:app/providers/exercise_providers.dart';
 
-class ChartsScreen extends ConsumerStatefulWidget {
+class ChartsScreen extends StatefulWidget {
   const ChartsScreen({super.key});
 
   @override
-  ConsumerState<ChartsScreen> createState() => _ChartsScreenState();
+  State<ChartsScreen> createState() => _ChartsScreenState();
 }
 
-class _ChartsScreenState extends ConsumerState<ChartsScreen> {
+class _ChartsScreenState extends State<ChartsScreen> {
   String _selectedMuscleGroup = 'Chest';
 
   @override
