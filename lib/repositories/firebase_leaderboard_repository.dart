@@ -6,7 +6,7 @@ class FirebaseLeaderboardRepository implements LeaderboardRepository {
   final FirebaseFirestore _firestore;
 
   FirebaseLeaderboardRepository({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   @override
   Stream<List<UserLeaderboardStats>> getWeeklyLeaderboard() {
@@ -16,8 +16,10 @@ class FirebaseLeaderboardRepository implements LeaderboardRepository {
         .limit(50)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) => UserLeaderboardStats.fromJson(doc.data())).toList();
-    });
+          return snapshot.docs
+              .map((doc) => UserLeaderboardStats.fromJson(doc.data()))
+              .toList();
+        });
   }
 
   @override
@@ -28,8 +30,10 @@ class FirebaseLeaderboardRepository implements LeaderboardRepository {
         .limit(50)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) => UserLeaderboardStats.fromJson(doc.data())).toList();
-    });
+          return snapshot.docs
+              .map((doc) => UserLeaderboardStats.fromJson(doc.data()))
+              .toList();
+        });
   }
 
   @override

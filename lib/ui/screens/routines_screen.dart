@@ -19,7 +19,10 @@ class RoutinesScreen extends ConsumerWidget {
         data: (routines) {
           if (routines.isEmpty) {
             return const Center(
-              child: Text('No routines found.\nTap + to create one!', textAlign: TextAlign.center),
+              child: Text(
+                'No routines found.\nTap + to create one!',
+                textAlign: TextAlign.center,
+              ),
             );
           }
           return ListView.builder(
@@ -29,12 +32,17 @@ class RoutinesScreen extends ConsumerWidget {
               return Card(
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: ListTile(
-                  title: Text(routine.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  title: Text(
+                    routine.name,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   subtitle: Text('${routine.exercises.length} exercises'),
                   trailing: IconButton(
                     icon: const Icon(Icons.play_arrow, color: Colors.green),
                     onPressed: () {
-                      ref.read(activeWorkoutProvider.notifier).startWorkout(routine);
+                      ref
+                          .read(activeWorkoutProvider.notifier)
+                          .startWorkout(routine);
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Started ${routine.name}')),
                       );
@@ -44,7 +52,8 @@ class RoutinesScreen extends ConsumerWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => RoutineBuilderScreen(initialRoutine: routine),
+                        builder: (context) =>
+                            RoutineBuilderScreen(initialRoutine: routine),
                       ),
                     ).then((_) => ref.refresh(routinesProvider(userId)));
                   },
@@ -60,7 +69,9 @@ class RoutinesScreen extends ConsumerWidget {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const RoutineBuilderScreen()),
+            MaterialPageRoute(
+              builder: (context) => const RoutineBuilderScreen(),
+            ),
           ).then((_) => ref.refresh(routinesProvider(userId)));
         },
         child: const Icon(Icons.add),

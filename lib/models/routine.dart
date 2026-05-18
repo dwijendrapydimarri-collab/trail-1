@@ -5,15 +5,9 @@ class RoutineExercise {
   final Exercise exercise;
   final List<SetLog> sets;
 
-  RoutineExercise({
-    required this.exercise,
-    required this.sets,
-  });
+  RoutineExercise({required this.exercise, required this.sets});
 
-  RoutineExercise copyWith({
-    Exercise? exercise,
-    List<SetLog>? sets,
-  }) {
+  RoutineExercise copyWith({Exercise? exercise, List<SetLog>? sets}) {
     return RoutineExercise(
       exercise: exercise ?? this.exercise,
       sets: sets ?? this.sets,
@@ -42,11 +36,7 @@ class Routine {
   final String name;
   final List<RoutineExercise> exercises;
 
-  Routine({
-    required this.id,
-    required this.name,
-    required this.exercises,
-  });
+  Routine({required this.id, required this.name, required this.exercises});
 
   Routine copyWith({
     String? id,

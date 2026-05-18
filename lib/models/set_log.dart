@@ -11,12 +11,7 @@ class SetLog {
     this.isCompleted = false,
   });
 
-  SetLog copyWith({
-    String? id,
-    double? weight,
-    int? reps,
-    bool? isCompleted,
-  }) {
+  SetLog copyWith({String? id, double? weight, int? reps, bool? isCompleted}) {
     return SetLog(
       id: id ?? this.id,
       weight: weight ?? this.weight,

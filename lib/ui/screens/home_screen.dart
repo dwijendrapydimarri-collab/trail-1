@@ -24,10 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
-      ),
+      body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
@@ -44,10 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icon(Icons.fitness_center),
             label: 'Logger',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart),
-            label: 'Charts',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: 'Charts'),
           BottomNavigationBarItem(
             icon: Icon(Icons.leaderboard),
             label: 'Rankings',

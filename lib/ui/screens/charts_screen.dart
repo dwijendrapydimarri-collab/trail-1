@@ -26,7 +26,10 @@ class _ChartsScreenState extends ConsumerState<ChartsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Estimated 1RM Progression', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              'Estimated 1RM Progression',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 16),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -49,18 +52,29 @@ class _ChartsScreenState extends ConsumerState<ChartsScreen> {
                 LineChartData(
                   gridData: const FlGridData(show: false),
                   titlesData: FlTitlesData(
-                    rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
                     bottomTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
                         reservedSize: 30,
                         getTitlesWidget: (value, meta) {
                           const weeks = ['W1', 'W2', 'W3', 'W4', 'W5', 'W6'];
-                          if (value.toInt() >= 0 && value.toInt() < weeks.length) {
+                          if (value.toInt() >= 0 &&
+                              value.toInt() < weeks.length) {
                             return Padding(
                               padding: const EdgeInsets.only(top: 8.0),
-                              child: Text(weeks[value.toInt()], style: const TextStyle(color: AppTheme.textSecondaryColor, fontSize: 12)),
+                              child: Text(
+                                weeks[value.toInt()],
+                                style: const TextStyle(
+                                  color: AppTheme.textSecondaryColor,
+                                  fontSize: 12,
+                                ),
+                              ),
                             );
                           }
                           return const Text('');
@@ -72,7 +86,13 @@ class _ChartsScreenState extends ConsumerState<ChartsScreen> {
                         showTitles: true,
                         reservedSize: 40,
                         getTitlesWidget: (value, meta) {
-                          return Text('${value.toInt()}kg', style: const TextStyle(color: AppTheme.textSecondaryColor, fontSize: 12));
+                          return Text(
+                            '${value.toInt()}kg',
+                            style: const TextStyle(
+                              color: AppTheme.textSecondaryColor,
+                              fontSize: 12,
+                            ),
+                          );
                         },
                       ),
                     ),
@@ -96,7 +116,10 @@ class _ChartsScreenState extends ConsumerState<ChartsScreen> {
               ),
             ),
             const SizedBox(height: 40),
-            const Text('Weekly Volume Heatmap', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              'Weekly Volume Heatmap',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 16),
             SizedBox(
               height: 200,
@@ -111,29 +134,119 @@ class _ChartsScreenState extends ConsumerState<ChartsScreen> {
                       sideTitles: SideTitles(
                         showTitles: true,
                         getTitlesWidget: (value, meta) {
-                          const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                          const days = [
+                            'Mon',
+                            'Tue',
+                            'Wed',
+                            'Thu',
+                            'Fri',
+                            'Sat',
+                            'Sun',
+                          ];
                           return Padding(
                             padding: const EdgeInsets.only(top: 8.0),
-                            child: Text(days[value.toInt()], style: const TextStyle(color: AppTheme.textSecondaryColor, fontSize: 12)),
+                            child: Text(
+                              days[value.toInt()],
+                              style: const TextStyle(
+                                color: AppTheme.textSecondaryColor,
+                                fontSize: 12,
+                              ),
+                            ),
                           );
                         },
                         reservedSize: 28,
                       ),
                     ),
-                    leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    leftTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
                   ),
                   gridData: const FlGridData(show: false),
                   borderData: FlBorderData(show: false),
                   barGroups: [
-                    BarChartGroupData(x: 0, barRods: [BarChartRodData(toY: 15000, color: AppTheme.primaryColor, width: 16, borderRadius: BorderRadius.circular(4))]),
-                    BarChartGroupData(x: 1, barRods: [BarChartRodData(toY: 0, color: AppTheme.primaryColor, width: 16, borderRadius: BorderRadius.circular(4))]),
-                    BarChartGroupData(x: 2, barRods: [BarChartRodData(toY: 22000, color: AppTheme.primaryColor, width: 16, borderRadius: BorderRadius.circular(4))]),
-                    BarChartGroupData(x: 3, barRods: [BarChartRodData(toY: 18000, color: AppTheme.primaryColor, width: 16, borderRadius: BorderRadius.circular(4))]),
-                    BarChartGroupData(x: 4, barRods: [BarChartRodData(toY: 0, color: AppTheme.primaryColor, width: 16, borderRadius: BorderRadius.circular(4))]),
-                    BarChartGroupData(x: 5, barRods: [BarChartRodData(toY: 30000, color: AppTheme.primaryColor, width: 16, borderRadius: BorderRadius.circular(4))]),
-                    BarChartGroupData(x: 6, barRods: [BarChartRodData(toY: 12000, color: AppTheme.primaryColor, width: 16, borderRadius: BorderRadius.circular(4))]),
+                    BarChartGroupData(
+                      x: 0,
+                      barRods: [
+                        BarChartRodData(
+                          toY: 15000,
+                          color: AppTheme.primaryColor,
+                          width: 16,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ],
+                    ),
+                    BarChartGroupData(
+                      x: 1,
+                      barRods: [
+                        BarChartRodData(
+                          toY: 0,
+                          color: AppTheme.primaryColor,
+                          width: 16,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ],
+                    ),
+                    BarChartGroupData(
+                      x: 2,
+                      barRods: [
+                        BarChartRodData(
+                          toY: 22000,
+                          color: AppTheme.primaryColor,
+                          width: 16,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ],
+                    ),
+                    BarChartGroupData(
+                      x: 3,
+                      barRods: [
+                        BarChartRodData(
+                          toY: 18000,
+                          color: AppTheme.primaryColor,
+                          width: 16,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ],
+                    ),
+                    BarChartGroupData(
+                      x: 4,
+                      barRods: [
+                        BarChartRodData(
+                          toY: 0,
+                          color: AppTheme.primaryColor,
+                          width: 16,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ],
+                    ),
+                    BarChartGroupData(
+                      x: 5,
+                      barRods: [
+                        BarChartRodData(
+                          toY: 30000,
+                          color: AppTheme.primaryColor,
+                          width: 16,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ],
+                    ),
+                    BarChartGroupData(
+                      x: 6,
+                      barRods: [
+                        BarChartRodData(
+                          toY: 12000,
+                          color: AppTheme.primaryColor,
+                          width: 16,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -164,15 +277,50 @@ class _ChartsScreenState extends ConsumerState<ChartsScreen> {
     // Return some mock progressive data for the charts based on the muscle group
     switch (muscleGroup) {
       case 'Chest':
-        return const [FlSpot(0, 80), FlSpot(1, 82.5), FlSpot(2, 85), FlSpot(3, 85), FlSpot(4, 87.5), FlSpot(5, 90)];
+        return const [
+          FlSpot(0, 80),
+          FlSpot(1, 82.5),
+          FlSpot(2, 85),
+          FlSpot(3, 85),
+          FlSpot(4, 87.5),
+          FlSpot(5, 90),
+        ];
       case 'Back':
-        return const [FlSpot(0, 90), FlSpot(1, 95), FlSpot(2, 95), FlSpot(3, 100), FlSpot(4, 102.5), FlSpot(5, 105)];
+        return const [
+          FlSpot(0, 90),
+          FlSpot(1, 95),
+          FlSpot(2, 95),
+          FlSpot(3, 100),
+          FlSpot(4, 102.5),
+          FlSpot(5, 105),
+        ];
       case 'Legs':
-        return const [FlSpot(0, 110), FlSpot(1, 115), FlSpot(2, 120), FlSpot(3, 125), FlSpot(4, 130), FlSpot(5, 135)];
+        return const [
+          FlSpot(0, 110),
+          FlSpot(1, 115),
+          FlSpot(2, 120),
+          FlSpot(3, 125),
+          FlSpot(4, 130),
+          FlSpot(5, 135),
+        ];
       case 'Shoulders':
-        return const [FlSpot(0, 50), FlSpot(1, 52.5), FlSpot(2, 52.5), FlSpot(3, 55), FlSpot(4, 57.5), FlSpot(5, 60)];
+        return const [
+          FlSpot(0, 50),
+          FlSpot(1, 52.5),
+          FlSpot(2, 52.5),
+          FlSpot(3, 55),
+          FlSpot(4, 57.5),
+          FlSpot(5, 60),
+        ];
       default:
-        return const [FlSpot(0, 50), FlSpot(1, 52.5), FlSpot(2, 55), FlSpot(3, 57.5), FlSpot(4, 60), FlSpot(5, 62.5)];
+        return const [
+          FlSpot(0, 50),
+          FlSpot(1, 52.5),
+          FlSpot(2, 55),
+          FlSpot(3, 57.5),
+          FlSpot(4, 60),
+          FlSpot(5, 62.5),
+        ];
     }
   }
 }

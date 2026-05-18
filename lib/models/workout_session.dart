@@ -32,7 +32,9 @@ class WorkoutSession {
       id: json['id'] as String,
       routine: Routine.fromJson(json['routine'] as Map<String, dynamic>),
       startTime: DateTime.parse(json['startTime'] as String),
-      endTime: json['endTime'] != null ? DateTime.parse(json['endTime'] as String) : null,
+      endTime: json['endTime'] != null
+          ? DateTime.parse(json['endTime'] as String)
+          : null,
     );
   }
 

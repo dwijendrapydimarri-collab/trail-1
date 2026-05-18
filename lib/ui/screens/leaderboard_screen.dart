@@ -12,7 +12,8 @@ class LeaderboardScreen extends ConsumerStatefulWidget {
   ConsumerState<LeaderboardScreen> createState() => _LeaderboardScreenState();
 }
 
-class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> with SingleTickerProviderStateMixin {
+class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -53,7 +54,10 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> with Sing
     );
   }
 
-  Widget _buildLeaderboardList(AsyncValue<List<UserLeaderboardStats>> asyncStats, bool isWeekly) {
+  Widget _buildLeaderboardList(
+    AsyncValue<List<UserLeaderboardStats>> asyncStats,
+    bool isWeekly,
+  ) {
     return asyncStats.when(
       data: (stats) {
         if (stats.isEmpty) {
@@ -90,7 +94,12 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> with Sing
     );
   }
 
-  Widget _buildLeaderboardCard(UserLeaderboardStats stat, int rank, double volume, bool isCurrentUser) {
+  Widget _buildLeaderboardCard(
+    UserLeaderboardStats stat,
+    int rank,
+    double volume,
+    bool isCurrentUser,
+  ) {
     final rankColor = _getRankColor(rank);
 
     return Container(
@@ -98,15 +107,27 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> with Sing
       decoration: BoxDecoration(
         gradient: isCurrentUser
             ? LinearGradient(
-                colors: [AppTheme.primaryColor.withOpacity(0.4), AppTheme.accentColor.withOpacity(0.2)],
+                colors: [
+                  AppTheme.primaryColor.withOpacity(0.4),
+                  AppTheme.accentColor.withOpacity(0.2),
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               )
             : null,
         color: isCurrentUser ? null : AppTheme.surfaceColor,
         borderRadius: BorderRadius.circular(16),
-        border: isCurrentUser ? Border.all(color: AppTheme.accentColor, width: 1.5) : null,
-        boxShadow: isCurrentUser ? [BoxShadow(color: AppTheme.accentColor.withOpacity(0.3), blurRadius: 8)] : [],
+        border: isCurrentUser
+            ? Border.all(color: AppTheme.accentColor, width: 1.5)
+            : null,
+        boxShadow: isCurrentUser
+            ? [
+                BoxShadow(
+                  color: AppTheme.accentColor.withOpacity(0.3),
+                  blurRadius: 8,
+                ),
+              ]
+            : [],
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -133,12 +154,22 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> with Sing
               Padding(
                 padding: const EdgeInsets.only(left: 8.0),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: AppTheme.accentColor,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Text('YOU', style: TextStyle(color: Colors.black, fontSize: 10, fontWeight: FontWeight.bold)),
+                  child: const Text(
+                    'YOU',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
           ],
@@ -155,7 +186,13 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> with Sing
                 color: AppTheme.accentColor,
               ),
             ),
-            const Text('Lifted', style: TextStyle(fontSize: 12, color: AppTheme.textSecondaryColor)),
+            const Text(
+              'Lifted',
+              style: TextStyle(
+                fontSize: 12,
+                color: AppTheme.textSecondaryColor,
+              ),
+            ),
           ],
         ),
       ),

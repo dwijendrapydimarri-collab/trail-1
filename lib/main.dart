@@ -6,11 +6,7 @@ import 'package:app/ui/screens/home_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // await Firebase.initializeApp(); // Uncomment when ready to use Firebase
-  runApp(
-    const ProviderScope(
-      child: LiftoffApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: LiftoffApp()));
 }
 
 class LiftoffApp extends StatelessWidget {

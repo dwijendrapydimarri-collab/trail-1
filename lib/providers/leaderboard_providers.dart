@@ -10,12 +10,16 @@ final leaderboardRepositoryProvider = Provider<LeaderboardRepository>((ref) {
   return MockLeaderboardRepository();
 });
 
-final weeklyLeaderboardProvider = StreamProvider<List<UserLeaderboardStats>>((ref) {
+final weeklyLeaderboardProvider = StreamProvider<List<UserLeaderboardStats>>((
+  ref,
+) {
   final repository = ref.watch(leaderboardRepositoryProvider);
   return repository.getWeeklyLeaderboard();
 });
 
-final monthlyLeaderboardProvider = StreamProvider<List<UserLeaderboardStats>>((ref) {
+final monthlyLeaderboardProvider = StreamProvider<List<UserLeaderboardStats>>((
+  ref,
+) {
   final repository = ref.watch(leaderboardRepositoryProvider);
   return repository.getMonthlyLeaderboard();
 });

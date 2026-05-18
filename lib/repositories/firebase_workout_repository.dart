@@ -8,34 +8,53 @@ class FirebaseWorkoutRepository implements WorkoutRepository {
   final FirebaseFirestore _firestore;
 
   FirebaseWorkoutRepository({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   @override
   Future<void> saveWorkoutSession(WorkoutSession session) async {
-    await _firestore.collection('workout_sessions').doc(session.id).set(session.toJson());
+    await _firestore
+        .collection('workout_sessions')
+        .doc(session.id)
+        .set(session.toJson());
   }
 
   @override
   Future<List<WorkoutSession>> getWorkoutHistory(String userId) async {
-    final snapshot = await _firestore.collection('workout_sessions').where('userId', isEqualTo: userId).get();
-    return snapshot.docs.map((doc) => WorkoutSession.fromJson(doc.data())).toList();
+    final snapshot = await _firestore
+        .collection('workout_sessions')
+        .where('userId', isEqualTo: userId)
+        .get();
+    return snapshot.docs
+        .map((doc) => WorkoutSession.fromJson(doc.data()))
+        .toList();
   }
 
   @override
   Future<void> saveRoutine(Routine routine) async {
-    await _firestore.collection('routines').doc(routine.id).set(routine.toJson());
+    await _firestore
+        .collection('routines')
+        .doc(routine.id)
+        .set(routine.toJson());
   }
 
   @override
   Future<List<Routine>> getRoutines(String userId) async {
-    final snapshot = await _firestore.collection('routines').where('userId', isEqualTo: userId).get();
+    final snapshot = await _firestore
+        .collection('routines')
+        .where('userId', isEqualTo: userId)
+        .get();
     return snapshot.docs.map((doc) => Routine.fromJson(doc.data())).toList();
   }
 
   @override
   Future<List<PersonalRecord>> getPersonalRecords(String userId) async {
-    final snapshot = await _firestore.collection('personal_records').where('userId', isEqualTo: userId).get();
-    return snapshot.docs.map((doc) => PersonalRecord.fromJson(doc.data())).toList();
+    final snapshot = await _firestore
+        .collection('personal_records')
+        .where('userId', isEqualTo: userId)
+        .get();
+    return snapshot.docs
+        .map((doc) => PersonalRecord.fromJson(doc.data()))
+        .toList();
   }
 
   @override

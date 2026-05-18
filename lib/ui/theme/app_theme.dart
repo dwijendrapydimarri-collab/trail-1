@@ -31,14 +31,27 @@ class AppTheme {
         ),
         iconTheme: const IconThemeData(color: textPrimaryColor),
       ),
-      textTheme: GoogleFonts.poppinsTextTheme(ThemeData.dark().textTheme).copyWith(
-        displayLarge: GoogleFonts.poppins(color: textPrimaryColor, fontWeight: FontWeight.bold),
-        displayMedium: GoogleFonts.poppins(color: textPrimaryColor, fontWeight: FontWeight.bold),
-        displaySmall: GoogleFonts.poppins(color: textPrimaryColor, fontWeight: FontWeight.bold),
-        headlineMedium: GoogleFonts.poppins(color: textPrimaryColor, fontWeight: FontWeight.w600),
-        bodyLarge: GoogleFonts.poppins(color: textPrimaryColor),
-        bodyMedium: GoogleFonts.poppins(color: textSecondaryColor),
-      ),
+      textTheme: GoogleFonts.poppinsTextTheme(ThemeData.dark().textTheme)
+          .copyWith(
+            displayLarge: GoogleFonts.poppins(
+              color: textPrimaryColor,
+              fontWeight: FontWeight.bold,
+            ),
+            displayMedium: GoogleFonts.poppins(
+              color: textPrimaryColor,
+              fontWeight: FontWeight.bold,
+            ),
+            displaySmall: GoogleFonts.poppins(
+              color: textPrimaryColor,
+              fontWeight: FontWeight.bold,
+            ),
+            headlineMedium: GoogleFonts.poppins(
+              color: textPrimaryColor,
+              fontWeight: FontWeight.w600,
+            ),
+            bodyLarge: GoogleFonts.poppins(color: textPrimaryColor),
+            bodyMedium: GoogleFonts.poppins(color: textSecondaryColor),
+          ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: surfaceColor,
         selectedItemColor: accentColor,
@@ -55,7 +68,9 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           backgroundColor: primaryColor,
           foregroundColor: textPrimaryColor,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
           textStyle: GoogleFonts.poppins(fontWeight: FontWeight.bold),
         ),

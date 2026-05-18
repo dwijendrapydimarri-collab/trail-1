@@ -25,7 +25,9 @@ class ActiveWorkoutState {
   }) {
     return ActiveWorkoutState(
       session: session ?? this.session,
-      restTimerSeconds: clearTimer ? null : (restTimerSeconds ?? this.restTimerSeconds),
+      restTimerSeconds: clearTimer
+          ? null
+          : (restTimerSeconds ?? this.restTimerSeconds),
       isTimerActive: isTimerActive ?? this.isTimerActive,
     );
   }
@@ -45,9 +47,15 @@ class ActiveWorkoutNotifier extends Notifier<ActiveWorkoutState> {
         id: const Uuid().v4(),
         routine: routine.copyWith(
           // Ensure all routines start with uncompleted sets if they were copied from history
-          exercises: routine.exercises.map((re) => re.copyWith(
-            sets: re.sets.map((s) => s.copyWith(isCompleted: false)).toList()
-          )).toList()
+          exercises: routine.exercises
+              .map(
+                (re) => re.copyWith(
+                  sets: re.sets
+                      .map((s) => s.copyWith(isCompleted: false))
+                      .toList(),
+                ),
+              )
+              .toList(),
         ),
         startTime: DateTime.now(),
       ),
@@ -63,15 +71,19 @@ class ActiveWorkoutNotifier extends Notifier<ActiveWorkoutState> {
     if (state.session == null) return;
 
     final currentSession = state.session!;
-    final exercises = List<RoutineExercise>.from(currentSession.routine.exercises);
+    final exercises = List<RoutineExercise>.from(
+      currentSession.routine.exercises,
+    );
     final sets = List<SetLog>.from(exercises[exerciseIndex].sets);
 
-    sets.add(SetLog(
-      id: const Uuid().v4(),
-      weight: weight,
-      reps: reps,
-      isCompleted: false,
-    ));
+    sets.add(
+      SetLog(
+        id: const Uuid().v4(),
+        weight: weight,
+        reps: reps,
+        isCompleted: false,
+      ),
+    );
 
     exercises[exerciseIndex] = exercises[exerciseIndex].copyWith(sets: sets);
 
@@ -86,7 +98,9 @@ class ActiveWorkoutNotifier extends Notifier<ActiveWorkoutState> {
     if (state.session == null) return;
 
     final currentSession = state.session!;
-    final exercises = List<RoutineExercise>.from(currentSession.routine.exercises);
+    final exercises = List<RoutineExercise>.from(
+      currentSession.routine.exercises,
+    );
     final sets = List<SetLog>.from(exercises[exerciseIndex].sets);
 
     final targetSet = sets[setIndex];
@@ -110,13 +124,12 @@ class ActiveWorkoutNotifier extends Notifier<ActiveWorkoutState> {
     if (state.session == null) return;
 
     final currentSession = state.session!;
-    final exercises = List<RoutineExercise>.from(currentSession.routine.exercises);
+    final exercises = List<RoutineExercise>.from(
+      currentSession.routine.exercises,
+    );
     final sets = List<SetLog>.from(exercises[exerciseIndex].sets);
 
-    sets[setIndex] = sets[setIndex].copyWith(
-      weight: weight,
-      reps: reps,
-    );
+    sets[setIndex] = sets[setIndex].copyWith(weight: weight, reps: reps);
 
     exercises[exerciseIndex] = exercises[exerciseIndex].copyWith(sets: sets);
 
@@ -131,14 +144,16 @@ class ActiveWorkoutNotifier extends Notifier<ActiveWorkoutState> {
     if (state.session == null) return;
 
     final currentSession = state.session!;
-    final exercises = List<RoutineExercise>.from(currentSession.routine.exercises);
+    final exercises = List<RoutineExercise>.from(
+      currentSession.routine.exercises,
+    );
 
-    exercises.add(RoutineExercise(
-      exercise: exercise,
-      sets: [
-        SetLog(id: const Uuid().v4(), weight: 0, reps: 0)
-      ],
-    ));
+    exercises.add(
+      RoutineExercise(
+        exercise: exercise,
+        sets: [SetLog(id: const Uuid().v4(), weight: 0, reps: 0)],
+      ),
+    );
 
     state = state.copyWith(
       session: currentSession.copyWith(
@@ -149,7 +164,10 @@ class ActiveWorkoutNotifier extends Notifier<ActiveWorkoutState> {
 
   void _startRestTimer(int durationSeconds) {
     _restTimer?.cancel();
-    state = state.copyWith(restTimerSeconds: durationSeconds, isTimerActive: true);
+    state = state.copyWith(
+      restTimerSeconds: durationSeconds,
+      isTimerActive: true,
+    );
 
     _restTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (state.restTimerSeconds == null || state.restTimerSeconds! <= 1) {
@@ -176,9 +194,9 @@ class ActiveWorkoutNotifier extends Notifier<ActiveWorkoutState> {
       }
     }
   }
-
 }
 
-final activeWorkoutProvider = NotifierProvider<ActiveWorkoutNotifier, ActiveWorkoutState>(() {
-  return ActiveWorkoutNotifier();
-});
+final activeWorkoutProvider =
+    NotifierProvider<ActiveWorkoutNotifier, ActiveWorkoutState>(() {
+      return ActiveWorkoutNotifier();
+    });

@@ -10,7 +10,8 @@ class ExerciseLibraryScreen extends ConsumerStatefulWidget {
   const ExerciseLibraryScreen({super.key, this.isSelectionMode = false});
 
   @override
-  ConsumerState<ExerciseLibraryScreen> createState() => _ExerciseLibraryScreenState();
+  ConsumerState<ExerciseLibraryScreen> createState() =>
+      _ExerciseLibraryScreenState();
 }
 
 class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
@@ -22,9 +23,7 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
     final exercisesAsyncValue = ref.watch(exercisesProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Exercise Library'),
-      ),
+      appBar: AppBar(title: const Text('Exercise Library')),
       body: Column(
         children: [
           Padding(
@@ -72,8 +71,12 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
             child: exercisesAsyncValue.when(
               data: (exercises) {
                 final filteredExercises = exercises.where((e) {
-                  final matchesSearch = e.name.toLowerCase().contains(_searchQuery);
-                  final matchesMuscle = _selectedMuscleGroup == null || e.muscleGroup == _selectedMuscleGroup;
+                  final matchesSearch = e.name.toLowerCase().contains(
+                    _searchQuery,
+                  );
+                  final matchesMuscle =
+                      _selectedMuscleGroup == null ||
+                      e.muscleGroup == _selectedMuscleGroup;
                   return matchesSearch && matchesMuscle;
                 }).toList();
 
@@ -86,13 +89,24 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
                   itemBuilder: (context, index) {
                     final exercise = filteredExercises[index];
                     return Card(
-                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                       child: ListTile(
-                        title: Text(exercise.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                        subtitle: Text('${exercise.muscleGroup} • ${exercise.equipment}'),
+                        title: Text(
+                          exercise.name,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text(
+                          '${exercise.muscleGroup} • ${exercise.equipment}',
+                        ),
                         trailing: widget.isSelectionMode
                             ? IconButton(
-                                icon: const Icon(Icons.add_circle_outline, color: AppTheme.accentColor),
+                                icon: const Icon(
+                                  Icons.add_circle_outline,
+                                  color: AppTheme.accentColor,
+                                ),
                                 onPressed: () {
                                   Navigator.of(context).pop(exercise);
                                 },

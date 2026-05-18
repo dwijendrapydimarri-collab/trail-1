@@ -20,7 +20,9 @@ class _LoggerScreenState extends ConsumerState<LoggerScreen> {
   @override
   void initState() {
     super.initState();
-    _confettiController = ConfettiController(duration: const Duration(seconds: 2));
+    _confettiController = ConfettiController(
+      duration: const Duration(seconds: 2),
+    );
   }
 
   @override
@@ -58,7 +60,9 @@ class _LoggerScreenState extends ConsumerState<LoggerScreen> {
 
   void _finishWorkout() {
     ref.read(activeWorkoutProvider.notifier).endWorkout();
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Workout saved!')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Workout saved!')));
   }
 
   @override
@@ -78,9 +82,15 @@ class _LoggerScreenState extends ConsumerState<LoggerScreen> {
               ElevatedButton(
                 onPressed: () {
                   // For testing, starting an empty routine if none is passed
-                  ref.read(activeWorkoutProvider.notifier).startWorkout(
-                    Routine(id: 'test_routine', name: 'Quick Workout', exercises: []),
-                  );
+                  ref
+                      .read(activeWorkoutProvider.notifier)
+                      .startWorkout(
+                        Routine(
+                          id: 'test_routine',
+                          name: 'Quick Workout',
+                          exercises: [],
+                        ),
+                      );
                 },
                 child: const Text('Start Empty Workout'),
               ),
@@ -96,7 +106,13 @@ class _LoggerScreenState extends ConsumerState<LoggerScreen> {
         actions: [
           TextButton(
             onPressed: _finishWorkout,
-            child: const Text('Finish', style: TextStyle(color: AppTheme.accentColor, fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Finish',
+              style: TextStyle(
+                color: AppTheme.accentColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       ),
@@ -116,16 +132,50 @@ class _LoggerScreenState extends ConsumerState<LoggerScreen> {
                     children: [
                       Text(
                         routineExercise.exercise.name,
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.accentColor),
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.accentColor,
+                        ),
                       ),
                       const SizedBox(height: 8),
                       // Header
                       const Row(
                         children: [
-                          SizedBox(width: 40, child: Text('Set', style: TextStyle(color: AppTheme.textSecondaryColor))),
-                          Expanded(child: Text('kg', textAlign: TextAlign.center, style: TextStyle(color: AppTheme.textSecondaryColor))),
-                          Expanded(child: Text('Reps', textAlign: TextAlign.center, style: TextStyle(color: AppTheme.textSecondaryColor))),
-                          SizedBox(width: 48, child: Icon(Icons.check, color: AppTheme.textSecondaryColor)),
+                          SizedBox(
+                            width: 40,
+                            child: Text(
+                              'Set',
+                              style: TextStyle(
+                                color: AppTheme.textSecondaryColor,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Text(
+                              'kg',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: AppTheme.textSecondaryColor,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Text(
+                              'Reps',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: AppTheme.textSecondaryColor,
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 48,
+                            child: Icon(
+                              Icons.check,
+                              color: AppTheme.textSecondaryColor,
+                            ),
+                          ),
                         ],
                       ),
                       const Divider(),
@@ -142,7 +192,9 @@ class _LoggerScreenState extends ConsumerState<LoggerScreen> {
                             lastWeight = routineExercise.sets.last.weight;
                             lastReps = routineExercise.sets.last.reps;
                           }
-                          ref.read(activeWorkoutProvider.notifier).addSet(exIndex, lastWeight, lastReps);
+                          ref
+                              .read(activeWorkoutProvider.notifier)
+                              .addSet(exIndex, lastWeight, lastReps);
                         },
                         icon: const Icon(Icons.add),
                         label: const Text('Add Set'),
@@ -160,14 +212,22 @@ class _LoggerScreenState extends ConsumerState<LoggerScreen> {
               left: 16,
               right: 16,
               child: GestureDetector(
-                onTap: () => ref.read(activeWorkoutProvider.notifier).stopRestTimer(),
+                onTap: () =>
+                    ref.read(activeWorkoutProvider.notifier).stopRestTimer(),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: 24,
+                  ),
                   decoration: BoxDecoration(
                     color: AppTheme.primaryColor,
                     borderRadius: BorderRadius.circular(30),
                     boxShadow: [
-                      BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4)),
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
                     ],
                   ),
                   child: Row(
@@ -177,7 +237,11 @@ class _LoggerScreenState extends ConsumerState<LoggerScreen> {
                       const SizedBox(width: 8),
                       Text(
                         'Rest: ${activeState.restTimerSeconds}s',
-                        style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(width: 8),
                       const Icon(Icons.close, color: Colors.white, size: 16),
@@ -193,7 +257,12 @@ class _LoggerScreenState extends ConsumerState<LoggerScreen> {
               confettiController: _confettiController,
               blastDirectionality: BlastDirectionality.explosive,
               shouldLoop: false,
-              colors: const [AppTheme.primaryColor, AppTheme.accentColor, Colors.white, Colors.yellow],
+              colors: const [
+                AppTheme.primaryColor,
+                AppTheme.accentColor,
+                Colors.white,
+                Colors.yellow,
+              ],
             ),
           ),
         ],
@@ -217,13 +286,21 @@ class _LoggerScreenState extends ConsumerState<LoggerScreen> {
       confirmDismiss: (direction) async {
         if (!setLog.isCompleted) {
           _triggerHapticAndConfetti();
-          _checkAndTriggerPR(setLog.weight, setLog.reps, session!.routine.exercises[exIndex].exercise.name);
+          _checkAndTriggerPR(
+            setLog.weight,
+            setLog.reps,
+            session!.routine.exercises[exIndex].exercise.name,
+          );
         }
-        ref.read(activeWorkoutProvider.notifier).toggleSetComplete(exIndex, setIndex);
+        ref
+            .read(activeWorkoutProvider.notifier)
+            .toggleSetComplete(exIndex, setIndex);
         return false; // Prevent actual dismissal
       },
       child: Container(
-        color: setLog.isCompleted ? AppTheme.accentColor.withOpacity(0.1) : Colors.transparent,
+        color: setLog.isCompleted
+            ? AppTheme.accentColor.withOpacity(0.1)
+            : Colors.transparent,
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Row(
           children: [
@@ -232,7 +309,9 @@ class _LoggerScreenState extends ConsumerState<LoggerScreen> {
               child: Container(
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
-                  color: setLog.isCompleted ? AppTheme.accentColor : AppTheme.surfaceColor,
+                  color: setLog.isCompleted
+                      ? AppTheme.accentColor
+                      : AppTheme.surfaceColor,
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
@@ -240,7 +319,9 @@ class _LoggerScreenState extends ConsumerState<LoggerScreen> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: setLog.isCompleted ? AppTheme.backgroundColor : AppTheme.textPrimaryColor,
+                    color: setLog.isCompleted
+                        ? AppTheme.backgroundColor
+                        : AppTheme.textPrimaryColor,
                   ),
                 ),
               ),
@@ -249,7 +330,9 @@ class _LoggerScreenState extends ConsumerState<LoggerScreen> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: TextFormField(
-                  initialValue: setLog.weight > 0 ? setLog.weight.toString() : '',
+                  initialValue: setLog.weight > 0
+                      ? setLog.weight.toString()
+                      : '',
                   keyboardType: TextInputType.number,
                   textAlign: TextAlign.center,
                   decoration: InputDecoration(
@@ -257,10 +340,19 @@ class _LoggerScreenState extends ConsumerState<LoggerScreen> {
                     isDense: true,
                     filled: true,
                     fillColor: AppTheme.surfaceColor,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
                   onChanged: (val) {
-                    ref.read(activeWorkoutProvider.notifier).updateSet(exIndex, setIndex, weight: double.tryParse(val));
+                    ref
+                        .read(activeWorkoutProvider.notifier)
+                        .updateSet(
+                          exIndex,
+                          setIndex,
+                          weight: double.tryParse(val),
+                        );
                   },
                 ),
               ),
@@ -277,10 +369,15 @@ class _LoggerScreenState extends ConsumerState<LoggerScreen> {
                     isDense: true,
                     filled: true,
                     fillColor: AppTheme.surfaceColor,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
                   onChanged: (val) {
-                    ref.read(activeWorkoutProvider.notifier).updateSet(exIndex, setIndex, reps: int.tryParse(val));
+                    ref
+                        .read(activeWorkoutProvider.notifier)
+                        .updateSet(exIndex, setIndex, reps: int.tryParse(val));
                   },
                 ),
               ),
@@ -289,20 +386,30 @@ class _LoggerScreenState extends ConsumerState<LoggerScreen> {
               onTap: () {
                 if (!setLog.isCompleted) {
                   _triggerHapticAndConfetti();
-                  _checkAndTriggerPR(setLog.weight, setLog.reps, session!.routine.exercises[exIndex].exercise.name);
+                  _checkAndTriggerPR(
+                    setLog.weight,
+                    setLog.reps,
+                    session!.routine.exercises[exIndex].exercise.name,
+                  );
                 }
-                ref.read(activeWorkoutProvider.notifier).toggleSetComplete(exIndex, setIndex);
+                ref
+                    .read(activeWorkoutProvider.notifier)
+                    .toggleSetComplete(exIndex, setIndex);
               },
               child: Container(
                 width: 48,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: setLog.isCompleted ? AppTheme.accentColor : AppTheme.surfaceColor,
+                  color: setLog.isCompleted
+                      ? AppTheme.accentColor
+                      : AppTheme.surfaceColor,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
                   Icons.check,
-                  color: setLog.isCompleted ? AppTheme.backgroundColor : AppTheme.textSecondaryColor,
+                  color: setLog.isCompleted
+                      ? AppTheme.backgroundColor
+                      : AppTheme.textSecondaryColor,
                 ),
               ),
             ),

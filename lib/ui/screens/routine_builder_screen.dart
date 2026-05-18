@@ -38,10 +38,12 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
 
   void _addExercise(Exercise exercise) {
     setState(() {
-      _exercises.add(RoutineExercise(
-        exercise: exercise,
-        sets: [SetLog(id: const Uuid().v4(), weight: 0, reps: 0)],
-      ));
+      _exercises.add(
+        RoutineExercise(
+          exercise: exercise,
+          sets: [SetLog(id: const Uuid().v4(), weight: 0, reps: 0)],
+        ),
+      );
     });
   }
 
@@ -56,7 +58,10 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
       }
 
       _exercises[exerciseIndex] = _exercises[exerciseIndex].copyWith(
-        sets: [...currentSets, SetLog(id: const Uuid().v4(), weight: lastWeight, reps: lastReps)],
+        sets: [
+          ...currentSets,
+          SetLog(id: const Uuid().v4(), weight: lastWeight, reps: lastReps),
+        ],
       );
     });
   }
@@ -65,7 +70,9 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
     setState(() {
       final currentSets = List<SetLog>.from(_exercises[exerciseIndex].sets);
       currentSets.removeAt(setIndex);
-      _exercises[exerciseIndex] = _exercises[exerciseIndex].copyWith(sets: currentSets);
+      _exercises[exerciseIndex] = _exercises[exerciseIndex].copyWith(
+        sets: currentSets,
+      );
     });
   }
 
@@ -77,11 +84,15 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
 
   void _saveRoutine() {
     if (_nameController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter a routine name')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a routine name')),
+      );
       return;
     }
     if (_exercises.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please add at least one exercise')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please add at least one exercise')),
+      );
       return;
     }
 
@@ -108,12 +119,11 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.initialRoutine == null ? 'Create Routine' : 'Edit Routine'),
+        title: Text(
+          widget.initialRoutine == null ? 'Create Routine' : 'Edit Routine',
+        ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.save),
-            onPressed: _saveRoutine,
-          ),
+          IconButton(icon: const Icon(Icons.save), onPressed: _saveRoutine),
         ],
       ),
       body: Column(
@@ -145,7 +155,10 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
                 final routineExercise = _exercises[index];
                 return Card(
                   key: ValueKey(routineExercise.exercise.id + index.toString()),
-                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: Column(
@@ -156,12 +169,18 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
                           children: [
                             Text(
                               routineExercise.exercise.name,
-                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             Row(
                               children: [
                                 IconButton(
-                                  icon: const Icon(Icons.delete, color: Colors.redAccent),
+                                  icon: const Icon(
+                                    Icons.delete,
+                                    color: Colors.redAccent,
+                                  ),
                                   onPressed: () => _removeExercise(index),
                                 ),
                                 const Icon(Icons.drag_handle),
@@ -175,36 +194,62 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
                           final setLog = entry.value;
                           return Row(
                             children: [
-                              Text('Set ${setIndex + 1}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                              Text(
+                                'Set ${setIndex + 1}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                               const SizedBox(width: 16),
                               Expanded(
                                 child: TextFormField(
-                                  initialValue: setLog.weight > 0 ? setLog.weight.toString() : '',
+                                  initialValue: setLog.weight > 0
+                                      ? setLog.weight.toString()
+                                      : '',
                                   keyboardType: TextInputType.number,
-                                  decoration: const InputDecoration(hintText: 'kg', isDense: true),
+                                  decoration: const InputDecoration(
+                                    hintText: 'kg',
+                                    isDense: true,
+                                  ),
                                   onChanged: (val) {
-                                    final sets = List<SetLog>.from(_exercises[index].sets);
-                                    sets[setIndex] = sets[setIndex].copyWith(weight: double.tryParse(val) ?? 0);
-                                    _exercises[index] = _exercises[index].copyWith(sets: sets);
+                                    final sets = List<SetLog>.from(
+                                      _exercises[index].sets,
+                                    );
+                                    sets[setIndex] = sets[setIndex].copyWith(
+                                      weight: double.tryParse(val) ?? 0,
+                                    );
+                                    _exercises[index] = _exercises[index]
+                                        .copyWith(sets: sets);
                                   },
                                 ),
                               ),
                               const SizedBox(width: 16),
                               Expanded(
                                 child: TextFormField(
-                                  initialValue: setLog.reps > 0 ? setLog.reps.toString() : '',
+                                  initialValue: setLog.reps > 0
+                                      ? setLog.reps.toString()
+                                      : '',
                                   keyboardType: TextInputType.number,
-                                  decoration: const InputDecoration(hintText: 'reps', isDense: true),
+                                  decoration: const InputDecoration(
+                                    hintText: 'reps',
+                                    isDense: true,
+                                  ),
                                   onChanged: (val) {
-                                    final sets = List<SetLog>.from(_exercises[index].sets);
-                                    sets[setIndex] = sets[setIndex].copyWith(reps: int.tryParse(val) ?? 0);
-                                    _exercises[index] = _exercises[index].copyWith(sets: sets);
+                                    final sets = List<SetLog>.from(
+                                      _exercises[index].sets,
+                                    );
+                                    sets[setIndex] = sets[setIndex].copyWith(
+                                      reps: int.tryParse(val) ?? 0,
+                                    );
+                                    _exercises[index] = _exercises[index]
+                                        .copyWith(sets: sets);
                                   },
                                 ),
                               ),
                               IconButton(
                                 icon: const Icon(Icons.close, size: 18),
-                                onPressed: () => _removeSetFromExercise(index, setIndex),
+                                onPressed: () =>
+                                    _removeSetFromExercise(index, setIndex),
                               ),
                             ],
                           );
@@ -225,11 +270,13 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
             padding: const EdgeInsets.all(16.0),
             child: ElevatedButton.icon(
               onPressed: () async {
-                final Exercise? selectedExercise = await Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const ExerciseLibraryScreen(isSelectionMode: true),
-                  ),
-                );
+                final Exercise? selectedExercise = await Navigator.of(context)
+                    .push(
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            const ExerciseLibraryScreen(isSelectionMode: true),
+                      ),
+                    );
                 if (selectedExercise != null) {
                   _addExercise(selectedExercise);
                 }
