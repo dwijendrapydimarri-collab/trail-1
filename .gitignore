@@ -14,3 +14,11 @@ web/
 ios/Runner/Assets.xcassets/
 android/app/src/main/res/
 .metadata
+ios/
+android/
+web/
+macos/
+linux/
+windows/
+.metadata
+pubspec.lock
