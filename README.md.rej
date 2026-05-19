@@ -1,0 +1,17 @@
+--- README.md
++++ README.md
+@@ -10,13 +10,13 @@
+ ```bash
+ # Web preview with mock data (fastest way to demo)
+ flutter run -d chrome
+
+ # iOS/Android with mock data
+ flutter run
+ ```
+
+ ## 🌟 Features Showcase
+
+-- ✅ Custom routine builder with 60+ exercises covering all muscle groups.
++- ✅ Custom routine builder with **500+ exercises** covering all muscle groups and tracking detailed movement patterns.
+ - ✅ Swipe-to-complete set logger with integrated haptic feedback.
+ - ✅ Auto-start 90s rest timer overlay.

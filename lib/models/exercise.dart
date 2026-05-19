@@ -5,6 +5,9 @@ class Exercise {
   final String equipment;
   final String difficulty;
   final String? imageUrl;
+  final String movementPattern;
+  final List<String> primaryMuscles;
+  final List<String> secondaryMuscles;
 
   Exercise({
     required this.id,
@@ -13,6 +16,9 @@ class Exercise {
     required this.equipment,
     required this.difficulty,
     this.imageUrl,
+    this.movementPattern = 'Other',
+    this.primaryMuscles = const [],
+    this.secondaryMuscles = const [],
   });
 
   factory Exercise.fromJson(Map<String, dynamic> json) {
@@ -23,6 +29,17 @@ class Exercise {
       equipment: json['equipment'] as String,
       difficulty: json['difficulty'] as String,
       imageUrl: json['imageUrl'] as String?,
+      movementPattern: json['movementPattern'] as String? ?? 'Other',
+      primaryMuscles:
+          (json['primaryMuscles'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
+      secondaryMuscles:
+          (json['secondaryMuscles'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
     );
   }
 
@@ -34,6 +51,9 @@ class Exercise {
       'equipment': equipment,
       'difficulty': difficulty,
       'imageUrl': imageUrl,
+      'movementPattern': movementPattern,
+      'primaryMuscles': primaryMuscles,
+      'secondaryMuscles': secondaryMuscles,
     };
   }
 }

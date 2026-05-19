@@ -1,6 +1,7 @@
 import 'package:app/models/workout_session.dart';
 import 'package:app/models/routine.dart';
 import 'package:app/models/personal_record.dart';
+import 'package:app/models/user_progress.dart';
 
 abstract class WorkoutRepository {
   Future<void> saveWorkoutSession(WorkoutSession session);

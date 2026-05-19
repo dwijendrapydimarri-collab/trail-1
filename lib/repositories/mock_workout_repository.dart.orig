@@ -1,14 +1,12 @@
 import 'package:app/models/workout_session.dart';
 import 'package:app/models/routine.dart';
 import 'package:app/models/personal_record.dart';
-import 'package:app/models/user_progress.dart';
 import 'package:app/repositories/workout_repository.dart';
 
 class MockWorkoutRepository implements WorkoutRepository {
   final List<WorkoutSession> _sessions = [];
   final List<Routine> _routines = [];
   final List<PersonalRecord> _prs = [];
-  UserProgress? _progress;
 
   @override
   Future<void> saveWorkoutSession(WorkoutSession session) async {
@@ -38,15 +36,5 @@ class MockWorkoutRepository implements WorkoutRepository {
   @override
   Future<void> savePersonalRecord(String userId, PersonalRecord pr) async {
     _prs.add(pr);
-  }
-
-  @override
-  Future<UserProgress?> getUserProgress(String userId) async {
-    return _progress ?? UserProgress(userId: userId);
-  }
-
-  @override
-  Future<void> saveUserProgress(UserProgress progress) async {
-    _progress = progress;
   }
 }
