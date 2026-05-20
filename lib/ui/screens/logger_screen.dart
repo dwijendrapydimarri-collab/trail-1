@@ -6,6 +6,13 @@ import 'package:vibration/vibration.dart';
 import 'package:confetti/confetti.dart';
 import 'package:app/models/routine.dart';
 import 'package:app/models/set_log.dart';
+import 'package:app/models/personal_record.dart';
+import 'package:app/providers/workout_providers.dart';
+import 'package:app/providers/leaderboard_providers.dart';
+import 'package:app/providers/service_providers.dart';
+import 'package:app/models/workout_recap.dart';
+import 'package:app/providers/user_progress_provider.dart';
+import 'package:app/ui/screens/recap_screen.dart';
 
 class LoggerScreen extends ConsumerStatefulWidget {
   const LoggerScreen({super.key});
@@ -37,16 +44,42 @@ class _LoggerScreenState extends ConsumerState<LoggerScreen> {
     }
   }
 
-  void _checkAndTriggerPR(double weight, int reps, String exerciseName) async {
-    // Simple mock logic for PR detection
-    // In a real app, this would check against the PersonalRecord model history
-    // For demo purposes, any set > 100kg or >= 10 reps is a PR
-    if (weight > 100 || reps >= 10) {
+  Future<List<PersonalRecord>> _checkAndTriggerPR(
+    double weight,
+    int reps,
+    RoutineExercise routineExercise,
+  ) async {
+    const userId = 'user_123';
+    final repo = ref.read(workoutRepositoryProvider);
+    final prs = await repo.getPersonalRecords(userId);
+
+    final exerciseId = routineExercise.exercise.id;
+    final previousPR = prs
+        .where((pr) => pr.exerciseId == exerciseId && pr.prType == 'MaxWeight')
+        .fold<double>(0, (max, pr) => pr.weight > max ? pr.weight : max);
+
+    List<PersonalRecord> detectedPrs = [];
+
+    if (weight > previousPR) {
+      final newPr = PersonalRecord(
+        exerciseId: exerciseId,
+        prType: 'MaxWeight',
+        value: weight,
+        weight: weight,
+        reps: reps,
+        estimatedOneRepMax: ref
+            .read(personalRecordServiceProvider)
+            .calculateEpley1RM(weight, reps),
+        achievedAt: DateTime.now(),
+      );
+      detectedPrs.add(newPr);
+
       _confettiController.play();
       if (await Vibration.hasVibrator() ?? false) {
         Vibration.vibrate(pattern: [0, 100, 50, 100, 50, 200]);
       }
       if (mounted) {
+        final exerciseName = routineExercise.exercise.name;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('🎉 NEW PR on $exerciseName!'),
@@ -56,13 +89,62 @@ class _LoggerScreenState extends ConsumerState<LoggerScreen> {
         );
       }
     }
+    return detectedPrs;
   }
 
-  void _finishWorkout() {
+  void _finishWorkout() async {
+    final session = ref.read(activeWorkoutProvider).session;
+    if (session == null) return;
+
+    const userId = 'user_123';
+
+    // Pipeline Step 1: Calculate full session stats
+    final rawSession = session.copyWith(endTime: DateTime.now());
+    final computedSession = ref
+        .read(workoutStatsServiceProvider)
+        .calculateSessionStats(rawSession);
+
+    // Pipeline Step 2: Save Session
+    final repo = ref.read(workoutRepositoryProvider);
+    await repo.saveWorkoutSession(computedSession);
+
+    // Pipeline Step 3: Detect and Save PRs correctly using full logic
+    final history = await repo.getPersonalRecords(userId);
+    final newPrs = ref
+        .read(personalRecordServiceProvider)
+        .detectPRs(computedSession, history);
+    for (final pr in newPrs) {
+      await repo.savePersonalRecord(userId, pr);
+    }
+
+    // Pipeline Step 4: Progression and Gamification
+    final currentUserProgress = await ref.read(
+      userProgressProvider(userId).future,
+    );
+    final newProgress = ref
+        .read(progressionServiceProvider)
+        .calculateNewProgress(currentUserProgress, computedSession, newPrs);
+    await repo.saveUserProgress(newProgress);
+
+    // Pipeline Step 5: Update Leaderboard
+    await ref
+        .read(leaderboardRepositoryProvider)
+        .updateUserVolume(userId, computedSession.totalVolume);
+
+    // Pipeline Step 6: Create Recap and clear active session
+    final recap = WorkoutRecap(
+      session: computedSession,
+      newPrs: newPrs,
+      streakDays: newProgress.currentStreak,
+      rankMovement: 1, // Logic for rank movement placeholder
+    );
+
     ref.read(activeWorkoutProvider.notifier).endWorkout();
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Workout saved!')));
+    if (mounted) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => RecapScreen(recap: recap)),
+      );
+    }
   }
 
   @override
@@ -81,7 +163,6 @@ class _LoggerScreenState extends ConsumerState<LoggerScreen> {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () {
-                  // For testing, starting an empty routine if none is passed
                   ref
                       .read(activeWorkoutProvider.notifier)
                       .startWorkout(
@@ -182,7 +263,12 @@ class _LoggerScreenState extends ConsumerState<LoggerScreen> {
                       ...routineExercise.sets.asMap().entries.map((entry) {
                         final setIndex = entry.key;
                         final setLog = entry.value;
-                        return _buildSetRow(exIndex, setIndex, setLog);
+                        return _buildSetRow(
+                          exIndex,
+                          setIndex,
+                          setLog,
+                          session.routine.exercises[exIndex],
+                        );
                       }),
                       TextButton.icon(
                         onPressed: () {
@@ -270,7 +356,12 @@ class _LoggerScreenState extends ConsumerState<LoggerScreen> {
     );
   }
 
-  Widget _buildSetRow(int exIndex, int setIndex, SetLog setLog) {
+  Widget _buildSetRow(
+    int exIndex,
+    int setIndex,
+    SetLog setLog,
+    RoutineExercise routineExercise,
+  ) {
     return Dismissible(
       key: ValueKey('${setLog.id}_$setIndex'),
       direction: DismissDirection.startToEnd,
@@ -280,22 +371,16 @@ class _LoggerScreenState extends ConsumerState<LoggerScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: const Icon(Icons.check, color: AppTheme.accentColor),
       ),
-      onDismissed: (direction) {
-        // We actually don't want to dismiss, we want to complete
-      },
+      onDismissed: (direction) {},
       confirmDismiss: (direction) async {
         if (!setLog.isCompleted) {
           _triggerHapticAndConfetti();
-          _checkAndTriggerPR(
-            setLog.weight,
-            setLog.reps,
-            session!.routine.exercises[exIndex].exercise.name,
-          );
+          _checkAndTriggerPR(setLog.weight, setLog.reps, routineExercise);
         }
         ref
             .read(activeWorkoutProvider.notifier)
             .toggleSetComplete(exIndex, setIndex);
-        return false; // Prevent actual dismissal
+        return false;
       },
       child: Container(
         color: setLog.isCompleted
@@ -389,7 +474,7 @@ class _LoggerScreenState extends ConsumerState<LoggerScreen> {
                   _checkAndTriggerPR(
                     setLog.weight,
                     setLog.reps,
-                    session!.routine.exercises[exIndex].exercise.name,
+                    routineExercise,
                   );
                 }
                 ref

@@ -20,12 +20,13 @@ flutter run
 
 ## 🌟 Features Showcase
 
-- ✅ Custom routine builder with 60+ exercises covering all muscle groups.
+- ✅ Custom routine builder with **500+ exercises** covering all muscle groups and tracking detailed movement patterns.
 - ✅ Swipe-to-complete set logger with integrated haptic feedback.
 - ✅ Auto-start 90s rest timer overlay.
 - ✅ PR celebration with confetti animation and distinct vibration bursts.
 - ✅ Strength progression charts (Estimated 1RM line charts and Volume Heatmaps).
 - ✅ Real-time styled leaderboard (Weekly/Monthly rankings, glowing cards for user rank, top 3 coloring).
+- ✅ **Cinematic Post-Workout Recap** summarizing streak growth, total XP gained, and new PR records hit during the session.
 
 ## 🏗️ Architecture Highlights
 

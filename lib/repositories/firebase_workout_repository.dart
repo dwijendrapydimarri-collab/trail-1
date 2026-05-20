@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:app/models/workout_session.dart';
 import 'package:app/models/routine.dart';
 import 'package:app/models/personal_record.dart';
+import 'package:app/models/user_progress.dart';
 import 'package:app/repositories/workout_repository.dart';
 
 class FirebaseWorkoutRepository implements WorkoutRepository {
@@ -63,5 +64,23 @@ class FirebaseWorkoutRepository implements WorkoutRepository {
       ...pr.toJson(),
       'userId': userId,
     });
+  }
+
+  @override
+  Future<UserProgress?> getUserProgress(String userId) async {
+    final snapshot = await _firestore
+        .collection('user_progress')
+        .doc(userId)
+        .get();
+    if (!snapshot.exists) return null;
+    return UserProgress.fromJson(snapshot.data()!);
+  }
+
+  @override
+  Future<void> saveUserProgress(UserProgress progress) async {
+    await _firestore
+        .collection('user_progress')
+        .doc(progress.userId)
+        .set(progress.toJson());
   }
 }

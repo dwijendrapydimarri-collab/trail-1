@@ -10,4 +10,6 @@ abstract class WorkoutRepository {
   Future<List<Routine>> getRoutines(String userId);
   Future<List<PersonalRecord>> getPersonalRecords(String userId);
   Future<void> savePersonalRecord(String userId, PersonalRecord pr);
+  Future<UserProgress?> getUserProgress(String userId);
+  Future<void> saveUserProgress(UserProgress progress);
 }

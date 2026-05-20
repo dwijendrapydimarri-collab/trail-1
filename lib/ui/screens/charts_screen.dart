@@ -19,6 +19,11 @@ class _ChartsScreenState extends ConsumerState<ChartsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    const userId = 'user_123';
+    final historyAsync = ref.watch(workoutHistoryProvider(userId));
+    final prsAsync = ref.watch(personalRecordsProvider(userId));
+    final exercisesAsync = ref.watch(exercisesProvider);
+
     return Scaffold(
       appBar: AppBar(title: const Text('Strength Progress')),
       body: SingleChildScrollView(
@@ -100,7 +105,11 @@ class _ChartsScreenState extends ConsumerState<ChartsScreen> {
                   borderData: FlBorderData(show: false),
                   lineBarsData: [
                     LineChartBarData(
-                      spots: _getMockDataForMuscleGroup(_selectedMuscleGroup),
+                      spots: _buildPrSpots(
+                        prsAsync,
+                        exercisesAsync,
+                        _selectedMuscleGroup,
+                      ),
                       isCurved: true,
                       color: AppTheme.accentColor,
                       barWidth: 4,
@@ -169,85 +178,7 @@ class _ChartsScreenState extends ConsumerState<ChartsScreen> {
                   ),
                   gridData: const FlGridData(show: false),
                   borderData: FlBorderData(show: false),
-                  barGroups: [
-                    BarChartGroupData(
-                      x: 0,
-                      barRods: [
-                        BarChartRodData(
-                          toY: 15000,
-                          color: AppTheme.primaryColor,
-                          width: 16,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ],
-                    ),
-                    BarChartGroupData(
-                      x: 1,
-                      barRods: [
-                        BarChartRodData(
-                          toY: 0,
-                          color: AppTheme.primaryColor,
-                          width: 16,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ],
-                    ),
-                    BarChartGroupData(
-                      x: 2,
-                      barRods: [
-                        BarChartRodData(
-                          toY: 22000,
-                          color: AppTheme.primaryColor,
-                          width: 16,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ],
-                    ),
-                    BarChartGroupData(
-                      x: 3,
-                      barRods: [
-                        BarChartRodData(
-                          toY: 18000,
-                          color: AppTheme.primaryColor,
-                          width: 16,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ],
-                    ),
-                    BarChartGroupData(
-                      x: 4,
-                      barRods: [
-                        BarChartRodData(
-                          toY: 0,
-                          color: AppTheme.primaryColor,
-                          width: 16,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ],
-                    ),
-                    BarChartGroupData(
-                      x: 5,
-                      barRods: [
-                        BarChartRodData(
-                          toY: 30000,
-                          color: AppTheme.primaryColor,
-                          width: 16,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ],
-                    ),
-                    BarChartGroupData(
-                      x: 6,
-                      barRods: [
-                        BarChartRodData(
-                          toY: 12000,
-                          color: AppTheme.primaryColor,
-                          width: 16,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ],
-                    ),
-                  ],
+                  barGroups: _buildHeatmapGroups(historyAsync),
                 ),
               ),
             ),
@@ -273,54 +204,76 @@ class _ChartsScreenState extends ConsumerState<ChartsScreen> {
     );
   }
 
-  List<FlSpot> _getMockDataForMuscleGroup(String muscleGroup) {
-    // Return some mock progressive data for the charts based on the muscle group
-    switch (muscleGroup) {
-      case 'Chest':
-        return const [
-          FlSpot(0, 80),
-          FlSpot(1, 82.5),
-          FlSpot(2, 85),
-          FlSpot(3, 85),
-          FlSpot(4, 87.5),
-          FlSpot(5, 90),
-        ];
-      case 'Back':
-        return const [
-          FlSpot(0, 90),
-          FlSpot(1, 95),
-          FlSpot(2, 95),
-          FlSpot(3, 100),
-          FlSpot(4, 102.5),
-          FlSpot(5, 105),
-        ];
-      case 'Legs':
-        return const [
-          FlSpot(0, 110),
-          FlSpot(1, 115),
-          FlSpot(2, 120),
-          FlSpot(3, 125),
-          FlSpot(4, 130),
-          FlSpot(5, 135),
-        ];
-      case 'Shoulders':
-        return const [
-          FlSpot(0, 50),
-          FlSpot(1, 52.5),
-          FlSpot(2, 52.5),
-          FlSpot(3, 55),
-          FlSpot(4, 57.5),
-          FlSpot(5, 60),
-        ];
-      default:
-        return const [
-          FlSpot(0, 50),
-          FlSpot(1, 52.5),
-          FlSpot(2, 55),
-          FlSpot(3, 57.5),
-          FlSpot(4, 60),
-          FlSpot(5, 62.5),
-        ];
+  List<FlSpot> _buildPrSpots(
+    AsyncValue<List<PersonalRecord>> prsAsync,
+    AsyncValue<List<dynamic>> exercisesAsync,
+    String muscleGroup,
+  ) {
+    final prs = prsAsync.valueOrNull ?? [];
+    final exercises = exercisesAsync.valueOrNull ?? [];
+
+    final muscleGroupExerciseIds = exercises
+        .where((e) => e.muscleGroup == muscleGroup)
+        .map((e) => e.id)
+        .toSet();
+
+    final filteredPrs = prs
+        .where((pr) => muscleGroupExerciseIds.contains(pr.exerciseId))
+        .toList();
+
+    filteredPrs.sort((a, b) => a.achievedAt.compareTo(b.achievedAt));
+
+    if (filteredPrs.isEmpty) {
+      return const []; // No data available yet. Shows empty instead of fake.
     }
+
+    final recentPrs = filteredPrs.length > 6
+        ? filteredPrs.sublist(filteredPrs.length - 6)
+        : filteredPrs;
+
+    List<FlSpot> spots = [];
+    for (int i = 0; i < recentPrs.length; i++) {
+      spots.add(FlSpot(i.toDouble(), recentPrs[i].estimatedOneRepMax));
+    }
+
+    return spots;
+  }
+
+  List<BarChartGroupData> _buildHeatmapGroups(
+    AsyncValue<List<WorkoutSession>> historyAsync,
+  ) {
+    final sessions = historyAsync.valueOrNull ?? [];
+
+    if (sessions.isEmpty) {
+      return []; // Return empty graph rather than mock if no history.
+    }
+
+    Map<int, double> volumeByDay = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0};
+
+    for (final session in sessions) {
+      final dayOfWeek = session.startTime.weekday;
+      double volume = 0;
+      for (final ex in session.routine.exercises) {
+        for (final set in ex.sets) {
+          if (set.isCompleted) volume += (set.weight * set.reps);
+        }
+      }
+      volumeByDay[dayOfWeek] = (volumeByDay[dayOfWeek] ?? 0) + volume;
+    }
+
+    return List.generate(7, (index) {
+      final volume = volumeByDay[index + 1] ?? 0;
+      return BarChartGroupData(
+        x: index,
+        barRods: [
+          BarChartRodData(
+            toY: volume,
+            color: AppTheme.primaryColor,
+            width: 16,
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ],
+      );
+    });
   }
 }
