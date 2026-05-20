@@ -1,5 +1,6 @@
 import 'package:app/models/workout_session.dart';
 import 'package:app/models/personal_record.dart';
+import 'package:app/models/advanced/intelligence_models.dart';
 
 class WorkoutRecap {
   final WorkoutSession session;
