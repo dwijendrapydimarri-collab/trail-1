@@ -32,6 +32,9 @@ class ProgressionService {
       // If difference == 0 (multiple workouts in one day), streak stays the same
     }
 
+    int earnedEggs = 10; // Default egg reward for completing a workout
+    earnedEggs += newPrs.length * 5; // Bonus eggs for PRs
+
     return currentProgress.copyWith(
       totalXp: currentProgress.totalXp + earnedXp,
       currentStreak: newStreak,
