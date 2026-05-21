@@ -44,7 +44,7 @@ class _LoggerScreenState extends ConsumerState<LoggerScreen> {
     }
   }
 
-  Future<List<PersonalRecord>> _checkAndTriggerPR(
+  void _triggerVisualPR(
     double weight,
     int reps,
     RoutineExercise routineExercise,
@@ -58,22 +58,7 @@ class _LoggerScreenState extends ConsumerState<LoggerScreen> {
         .where((pr) => pr.exerciseId == exerciseId && pr.prType == 'MaxWeight')
         .fold<double>(0, (max, pr) => pr.weight > max ? pr.weight : max);
 
-    List<PersonalRecord> detectedPrs = [];
-
     if (weight > previousPR) {
-      final newPr = PersonalRecord(
-        exerciseId: exerciseId,
-        prType: 'MaxWeight',
-        value: weight,
-        weight: weight,
-        reps: reps,
-        estimatedOneRepMax: ref
-            .read(personalRecordServiceProvider)
-            .calculateEpley1RM(weight, reps),
-        achievedAt: DateTime.now(),
-      );
-      detectedPrs.add(newPr);
-
       _confettiController.play();
       if (await Vibration.hasVibrator() ?? false) {
         Vibration.vibrate(pattern: [0, 100, 50, 100, 50, 200]);
@@ -89,7 +74,6 @@ class _LoggerScreenState extends ConsumerState<LoggerScreen> {
         );
       }
     }
-    return detectedPrs;
   }
 
   void _finishWorkout() async {
@@ -131,12 +115,47 @@ class _LoggerScreenState extends ConsumerState<LoggerScreen> {
         .read(leaderboardRepositoryProvider)
         .updateUserVolume(userId, computedSession.totalVolume);
 
-    // Pipeline Step 6: Create Recap and clear active session
+    // Pipeline Step 6: Generate LiftIQ Intelligence Reports
+    final fullHistory = await repo.getWorkoutHistory(userId);
+    final allSessions = [...fullHistory, computedSession];
+    final loadReport = ref
+        .read(trainingLoadServiceProvider)
+        .calculateLoad(allSessions);
+    final balanceReport = ref
+        .read(muscleBalanceServiceProvider)
+        .calculateBalance(allSessions);
+    final recs = ref
+        .read(progressionRecommendationServiceProvider)
+        .generateRecommendations(balanceReport);
+
+    final leaderboardStream = ref
+        .read(leaderboardRepositoryProvider)
+        .getWeeklyLeaderboard();
+    final currentLeaderboard = await leaderboardStream.first;
+    final rivalGap = ref
+        .read(rivalGapServiceProvider)
+        .calculateGap(userId, currentLeaderboard);
+    final nextMission = ref
+        .read(missionGeneratorServiceProvider)
+        .generateMission(balanceReport, rivalGap);
+
+    final coachBrief = ref
+        .read(liftIQCoachServiceProvider)
+        .generateBrief(
+          load: loadReport,
+          balance: balanceReport,
+          recs: recs,
+          rivalGap: rivalGap,
+          mission: nextMission,
+        );
+
+    // Pipeline Step 7: Create Recap and clear active session
     final recap = WorkoutRecap(
       session: computedSession,
       newPrs: newPrs,
       streakDays: newProgress.currentStreak,
       rankMovement: 1, // Logic for rank movement placeholder
+      coachBrief: coachBrief,
     );
 
     ref.read(activeWorkoutProvider.notifier).endWorkout();
@@ -375,12 +394,12 @@ class _LoggerScreenState extends ConsumerState<LoggerScreen> {
       confirmDismiss: (direction) async {
         if (!setLog.isCompleted) {
           _triggerHapticAndConfetti();
-          _checkAndTriggerPR(setLog.weight, setLog.reps, routineExercise);
+          _triggerVisualPR(setLog.weight, setLog.reps, routineExercise);
         }
         ref
             .read(activeWorkoutProvider.notifier)
             .toggleSetComplete(exIndex, setIndex);
-        return false;
+        return false; // Prevent actual dismissal
       },
       child: Container(
         color: setLog.isCompleted
@@ -471,11 +490,7 @@ class _LoggerScreenState extends ConsumerState<LoggerScreen> {
               onTap: () {
                 if (!setLog.isCompleted) {
                   _triggerHapticAndConfetti();
-                  _checkAndTriggerPR(
-                    setLog.weight,
-                    setLog.reps,
-                    routineExercise,
-                  );
+                  _triggerVisualPR(setLog.weight, setLog.reps, routineExercise);
                 }
                 ref
                     .read(activeWorkoutProvider.notifier)

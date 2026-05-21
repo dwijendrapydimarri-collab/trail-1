@@ -8,6 +8,7 @@ class WorkoutRecap {
   final int streakDays;
   final int rankMovement;
   final String nextSuggestedGoal;
+  final LiftIQCoachBrief? coachBrief;
 
   WorkoutRecap({
     required this.session,
@@ -15,5 +16,6 @@ class WorkoutRecap {
     this.streakDays = 0,
     this.rankMovement = 0,
     this.nextSuggestedGoal = "Rest and recover!",
+    this.coachBrief,
   });
 }

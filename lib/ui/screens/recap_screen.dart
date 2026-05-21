@@ -108,15 +108,59 @@ class _RecapScreenState extends State<RecapScreen> {
                 // PRs
                 if (widget.recap.newPrs.isNotEmpty) _buildPrSection(),
 
+                if (widget.recap.coachBrief != null) ...[
+                  const SizedBox(height: 16),
+                  Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: const BorderSide(
+                        color: AppTheme.primaryColor,
+                        width: 2,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.smart_toy,
+                                color: AppTheme.primaryColor,
+                              ),
+                              const SizedBox(width: 8),
+                              const Text(
+                                'LiftIQ Coach Brief',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  color: AppTheme.primaryColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            widget.recap.coachBrief!.summaryMessage,
+                            style: const TextStyle(fontSize: 16, height: 1.4),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+
                 const SizedBox(height: 16),
 
-                // Next Goal
-                _buildSectionCard(
-                  icon: Icons.lightbulb,
-                  color: Colors.blueAccent,
-                  title: 'Coach\'s Next Move',
-                  content: widget.recap.nextSuggestedGoal,
-                ),
+                // Next Goal (Fallback if no coach brief)
+                if (widget.recap.coachBrief == null)
+                  _buildSectionCard(
+                    icon: Icons.lightbulb,
+                    color: Colors.blueAccent,
+                    title: 'Coach\'s Next Move',
+                    content: widget.recap.nextSuggestedGoal,
+                  ),
 
                 const SizedBox(height: 48),
                 ElevatedButton(
@@ -240,8 +284,6 @@ class _RecapScreenState extends State<RecapScreen> {
               else if (pr.prType == 'MaxVolume')
                 prText = 'Volume PR: ${pr.value}kg';
 
-              // We don't have the exercise name in the PR directly, so we just show the type for now.
-              // A real app would join this with the exercise library.
               return Padding(
                 padding: const EdgeInsets.only(bottom: 8.0),
                 child: Row(
