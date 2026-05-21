@@ -4,6 +4,8 @@ class UserProgress {
   final int currentStreak;
   final DateTime? lastWorkoutDate;
   final int prCount;
+  final int eggs;
+  final int totalEggsEarned;
 
   UserProgress({
     required this.userId,
@@ -11,6 +13,8 @@ class UserProgress {
     this.currentStreak = 0,
     this.lastWorkoutDate,
     this.prCount = 0,
+    this.eggs = 0,
+    this.totalEggsEarned = 0,
   });
 
   int get level => (totalXp / 1000).floor() + 1;
@@ -28,6 +32,8 @@ class UserProgress {
     int? currentStreak,
     DateTime? lastWorkoutDate,
     int? prCount,
+    int? eggs,
+    int? totalEggsEarned,
   }) {
     return UserProgress(
       userId: userId ?? this.userId,
@@ -35,6 +41,8 @@ class UserProgress {
       currentStreak: currentStreak ?? this.currentStreak,
       lastWorkoutDate: lastWorkoutDate ?? this.lastWorkoutDate,
       prCount: prCount ?? this.prCount,
+      eggs: eggs ?? this.eggs,
+      totalEggsEarned: totalEggsEarned ?? this.totalEggsEarned,
     );
   }
 
@@ -47,6 +55,8 @@ class UserProgress {
           ? DateTime.parse(json['lastWorkoutDate'])
           : null,
       prCount: json['prCount'] as int? ?? 0,
+      eggs: json['eggs'] as int? ?? 0,
+      totalEggsEarned: json['totalEggsEarned'] as int? ?? 0,
     );
   }
 
@@ -57,6 +67,8 @@ class UserProgress {
       'currentStreak': currentStreak,
       'lastWorkoutDate': lastWorkoutDate?.toIso8601String(),
       'prCount': prCount,
+      'eggs': eggs,
+      'totalEggsEarned': totalEggsEarned,
     };
   }
 }
