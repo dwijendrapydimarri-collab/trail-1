@@ -1,4 +1,3 @@
-import 'package:app/models/routine.dart';
 import 'package:app/models/workout_session.dart';
 
 class WorkoutStatsService {

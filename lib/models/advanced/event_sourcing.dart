@@ -1,4 +1,3 @@
-import 'dart:async';
 
 abstract class WorkoutEvent {
   final String id;

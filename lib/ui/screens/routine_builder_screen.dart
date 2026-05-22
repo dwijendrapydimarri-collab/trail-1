@@ -3,7 +3,6 @@ import 'package:app/models/routine.dart';
 import 'package:app/models/exercise.dart';
 import 'package:app/models/set_log.dart';
 import 'package:app/ui/screens/exercise_library_screen.dart';
-import 'package:app/ui/theme/app_theme.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:app/providers/workout_providers.dart';

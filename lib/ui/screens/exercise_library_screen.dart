@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:app/providers/exercise_providers.dart';
-import 'package:app/models/exercise.dart';
 import 'package:app/ui/theme/app_theme.dart';
 
 class ExerciseLibraryScreen extends ConsumerStatefulWidget {

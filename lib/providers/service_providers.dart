@@ -6,8 +6,6 @@ import 'package:app/services/advanced/training_load_service.dart';
 import 'package:app/services/advanced/muscle_balance_service.dart';
 import 'package:app/services/advanced/rival_gap_service.dart';
 import 'package:app/services/advanced/mission_generator_service.dart';
-import 'package:app/services/advanced/gamification_service.dart';
-import 'package:app/services/advanced/reward_service.dart';
 
 final workoutStatsServiceProvider = Provider((ref) => WorkoutStatsService());
 final personalRecordServiceProvider = Provider(

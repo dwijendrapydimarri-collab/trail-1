@@ -277,9 +277,9 @@ class _RecapScreenState extends State<RecapScreen> {
             const SizedBox(height: 12),
             ...widget.recap.newPrs.map((pr) {
               String prText = '';
-              if (pr.prType == 'MaxWeight')
+              if (pr.prType == 'MaxWeight') {
                 prText = 'Heaviest Lift: ${pr.value}kg';
-              else if (pr.prType == '1RM')
+              } else if (pr.prType == '1RM')
                 prText = 'New Est. 1RM: ${pr.value.toStringAsFixed(1)}kg';
               else if (pr.prType == 'MaxVolume')
                 prText = 'Volume PR: ${pr.value}kg';
@@ -300,7 +300,7 @@ class _RecapScreenState extends State<RecapScreen> {
                   ],
                 ),
               );
-            }).toList(),
+            }),
           ],
         ),
       ),

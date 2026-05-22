@@ -1,520 +1,263 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:app/providers/active_workout_provider.dart';
-import 'package:app/ui/theme/app_theme.dart';
-import 'package:vibration/vibration.dart';
-import 'package:confetti/confetti.dart';
+import 'package:uuid/uuid.dart';
 import 'package:app/models/routine.dart';
-import 'package:app/models/set_log.dart';
-import 'package:app/models/personal_record.dart';
+import 'package:app/models/workout_session.dart';
 import 'package:app/providers/workout_providers.dart';
-import 'package:app/providers/leaderboard_providers.dart';
-import 'package:app/providers/service_providers.dart';
-import 'package:app/models/workout_recap.dart';
-import 'package:app/providers/user_progress_provider.dart';
+import 'package:app/providers/user_providers.dart';
+import 'package:app/models/advanced/event_sourcing.dart';
 import 'package:app/ui/screens/recap_screen.dart';
+import 'package:app/ui/widgets/plate_calculator_sheet.dart';
 
 class LoggerScreen extends ConsumerStatefulWidget {
-  const LoggerScreen({super.key});
+  final Routine routine;
+  final String sessionId;
+
+  const LoggerScreen({
+    super.key,
+    required this.routine,
+    required this.sessionId,
+  });
 
   @override
   ConsumerState<LoggerScreen> createState() => _LoggerScreenState();
 }
 
 class _LoggerScreenState extends ConsumerState<LoggerScreen> {
-  late ConfettiController _confettiController;
+  final _uuid = const Uuid();
 
   @override
   void initState() {
     super.initState();
-    _confettiController = ConfettiController(
-      duration: const Duration(seconds: 2),
-    );
-  }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final session = ref.read(activeSessionProvider(widget.sessionId));
+      if (session == null) {
+        ref
+            .read(activeSessionProvider(widget.sessionId).notifier)
+            .dispatch(
+              WorkoutStartedEvent(
+                id: _uuid.v4(),
+                sessionId: widget.sessionId,
+                timestamp: DateTime.now(),
+                payload: {
+                  'routineId': widget.routine.id,
+                  'routineName': widget.routine.name,
+                },
+              ),
+            );
 
-  @override
-  void dispose() {
-    _confettiController.dispose();
-    super.dispose();
-  }
-
-  void _triggerHapticAndConfetti() async {
-    if (await Vibration.hasVibrator() ?? false) {
-      Vibration.vibrate(duration: 50, amplitude: 128);
-    }
-  }
-
-  void _triggerVisualPR(
-    double weight,
-    int reps,
-    RoutineExercise routineExercise,
-  ) async {
-    const userId = 'user_123';
-    final repo = ref.read(workoutRepositoryProvider);
-    final prs = await repo.getPersonalRecords(userId);
-
-    final exerciseId = routineExercise.exercise.id;
-    final previousPR = prs
-        .where((pr) => pr.exerciseId == exerciseId && pr.prType == 'MaxWeight')
-        .fold<double>(0, (max, pr) => pr.weight > max ? pr.weight : max);
-
-    if (weight > previousPR) {
-      _confettiController.play();
-      if (await Vibration.hasVibrator() ?? false) {
-        Vibration.vibrate(pattern: [0, 100, 50, 100, 50, 200]);
+        for (var exercise in widget.routine.exercises) {
+          ref
+              .read(activeSessionProvider(widget.sessionId).notifier)
+              .dispatch(
+                SetLoggedEvent(
+                  id: _uuid.v4(),
+                  sessionId: widget.sessionId,
+                  timestamp: DateTime.now(),
+                  payload: {
+                    'setId': _uuid.v4(),
+                    'exerciseId': exercise.id,
+                    'weight': 0.0,
+                    'reps': 0,
+                  },
+                ),
+              );
+        }
       }
-      if (mounted) {
-        final exerciseName = routineExercise.exercise.name;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('🎉 NEW PR on $exerciseName!'),
-            backgroundColor: AppTheme.accentColor,
-            behavior: SnackBarBehavior.floating,
+    });
+  }
+
+  void _finishWorkout(WorkoutSession session) {
+    ref
+        .read(activeSessionProvider(widget.sessionId).notifier)
+        .dispatch(
+          WorkoutFinishedEvent(
+            id: _uuid.v4(),
+            sessionId: widget.sessionId,
+            timestamp: DateTime.now(),
+            payload: {
+              'xpEarned': session.sets.where((s) => s.isCompleted).length * 10,
+            },
           ),
         );
-      }
-    }
+
+    final finalSession = ref.read(activeSessionProvider(widget.sessionId));
+
+    // Force explicit invalidations
+    ref.invalidate(userProgressProvider);
+    ref.invalidate(workoutHistoryProvider);
+    ref.invalidate(personalRecordsProvider);
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            RecapScreen(session: finalSession!, newPrs: const []),
+      ),
+    );
   }
 
-  void _finishWorkout() async {
-    final session = ref.read(activeWorkoutProvider).session;
-    if (session == null) return;
-
-    const userId = 'user_123';
-
-    // Pipeline Step 1: Calculate full session stats
-    final rawSession = session.copyWith(endTime: DateTime.now());
-    final computedSession = ref
-        .read(workoutStatsServiceProvider)
-        .calculateSessionStats(rawSession);
-
-    // Pipeline Step 2: Save Session
-    final repo = ref.read(workoutRepositoryProvider);
-    await repo.saveWorkoutSession(computedSession);
-
-    // Pipeline Step 3: Detect and Save PRs correctly using full logic
-    final history = await repo.getPersonalRecords(userId);
-    final newPrs = ref
-        .read(personalRecordServiceProvider)
-        .detectPRs(computedSession, history);
-    for (final pr in newPrs) {
-      await repo.savePersonalRecord(userId, pr);
-    }
-
-    // Pipeline Step 4: Progression and Gamification
-    final currentUserProgress = await ref.read(
-      userProgressProvider(userId).future,
-    );
-    final newProgress = ref
-        .read(progressionServiceProvider)
-        .calculateNewProgress(currentUserProgress, computedSession, newPrs);
-    await repo.saveUserProgress(newProgress);
-
-    // Pipeline Step 5: Update Leaderboard
-    await ref
-        .read(leaderboardRepositoryProvider)
-        .updateUserVolume(userId, computedSession.totalVolume);
-
-    // Pipeline Step 6: Generate LiftIQ Intelligence Reports
-    final fullHistory = await repo.getWorkoutHistory(userId);
-    final allSessions = [...fullHistory, computedSession];
-    final loadReport = ref
-        .read(trainingLoadServiceProvider)
-        .calculateLoad(allSessions);
-    final balanceReport = ref
-        .read(muscleBalanceServiceProvider)
-        .calculateBalance(allSessions);
-    final recs = ref
-        .read(progressionRecommendationServiceProvider)
-        .generateRecommendations(balanceReport);
-
-    final leaderboardStream = ref
-        .read(leaderboardRepositoryProvider)
-        .getWeeklyLeaderboard();
-    final currentLeaderboard = await leaderboardStream.first;
-    final rivalGap = ref
-        .read(rivalGapServiceProvider)
-        .calculateGap(userId, currentLeaderboard);
-    final nextMission = ref
-        .read(missionGeneratorServiceProvider)
-        .generateMission(balanceReport, rivalGap);
-
-    final coachBrief = ref
-        .read(liftIQCoachServiceProvider)
-        .generateBrief(
-          load: loadReport,
-          balance: balanceReport,
-          recs: recs,
-          rivalGap: rivalGap,
-          mission: nextMission,
-        );
-
-    // Pipeline Step 7: Create Recap and clear active session
-    final recap = WorkoutRecap(
-      session: computedSession,
-      newPrs: newPrs,
-      streakDays: newProgress.currentStreak,
-      rankMovement: 1, // Logic for rank movement placeholder
-      coachBrief: coachBrief,
+  void _openPlateCalculator(ExerciseSet set, bool isBarbell) async {
+    final result = await showModalBottomSheet<double>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) =>
+          PlateCalculatorSheet(initialWeight: set.weight, isBarbell: isBarbell),
     );
 
-    ref.read(activeWorkoutProvider.notifier).endWorkout();
-    if (mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => RecapScreen(recap: recap)),
-      );
+    if (result != null) {
+      ref
+          .read(activeSessionProvider(widget.sessionId).notifier)
+          .dispatch(
+            SetUpdatedEvent(
+              id: _uuid.v4(),
+              sessionId: widget.sessionId,
+              timestamp: DateTime.now(),
+              payload: {'setId': set.id, 'weight': result},
+            ),
+          );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final activeState = ref.watch(activeWorkoutProvider);
-    final session = activeState.session;
+    final session = ref.watch(activeSessionProvider(widget.sessionId));
 
     if (session == null) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('Workout Logger')),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text('No active workout', style: TextStyle(fontSize: 18)),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  ref
-                      .read(activeWorkoutProvider.notifier)
-                      .startWorkout(
-                        Routine(
-                          id: 'test_routine',
-                          name: 'Quick Workout',
-                          exercises: [],
-                        ),
-                      );
-                },
-                child: const Text('Start Empty Workout'),
-              ),
-            ],
-          ),
-        ),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(session.routine.name),
+        title: Text('Logging: ${session.routineName}'),
         actions: [
           TextButton(
-            onPressed: _finishWorkout,
+            onPressed: () => _finishWorkout(session),
             child: const Text(
-              'Finish',
+              'FINISH',
               style: TextStyle(
-                color: AppTheme.accentColor,
+                color: Colors.tealAccent,
                 fontWeight: FontWeight.bold,
               ),
             ),
           ),
         ],
       ),
-      body: Stack(
-        children: [
-          ListView.builder(
-            padding: const EdgeInsets.only(bottom: 100),
-            itemCount: session.routine.exercises.length,
-            itemBuilder: (context, exIndex) {
-              final routineExercise = session.routine.exercises[exIndex];
-              return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        routineExercise.exercise.name,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.accentColor,
+      body: ListView.builder(
+        itemCount: session.sets.length,
+        itemBuilder: (context, index) {
+          final set = session.sets[index];
+          final isBarbell =
+              set.exerciseId.toLowerCase().contains('barbell') ||
+              set.exerciseId.toLowerCase().contains('bench') ||
+              set.exerciseId.toLowerCase().contains('squat');
+
+          return Card(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  Expanded(child: Text('Exercise: ${set.exerciseId}')),
+                  SizedBox(
+                    width: 80,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            key: ValueKey('weight_${set.id}_${set.weight}'),
+                            initialValue: set.weight.toString(),
+                            keyboardType: TextInputType.number,
+                            decoration: const InputDecoration(labelText: 'kg'),
+                            onChanged: (val) {
+                              ref
+                                  .read(
+                                    activeSessionProvider(
+                                      widget.sessionId,
+                                    ).notifier,
+                                  )
+                                  .dispatch(
+                                    SetUpdatedEvent(
+                                      id: _uuid.v4(),
+                                      sessionId: widget.sessionId,
+                                      timestamp: DateTime.now(),
+                                      payload: {
+                                        'setId': set.id,
+                                        'weight':
+                                            double.tryParse(val) ?? set.weight,
+                                      },
+                                    ),
+                                  );
+                            },
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      // Header
-                      const Row(
-                        children: [
-                          SizedBox(
-                            width: 40,
-                            child: Text(
-                              'Set',
-                              style: TextStyle(
-                                color: AppTheme.textSecondaryColor,
-                              ),
-                            ),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.calculate,
+                            size: 20,
+                            color: Colors.tealAccent,
                           ),
-                          Expanded(
-                            child: Text(
-                              'kg',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: AppTheme.textSecondaryColor,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Text(
-                              'Reps',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: AppTheme.textSecondaryColor,
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            width: 48,
-                            child: Icon(
-                              Icons.check,
-                              color: AppTheme.textSecondaryColor,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const Divider(),
-                      ...routineExercise.sets.asMap().entries.map((entry) {
-                        final setIndex = entry.key;
-                        final setLog = entry.value;
-                        return _buildSetRow(
-                          exIndex,
-                          setIndex,
-                          setLog,
-                          session.routine.exercises[exIndex],
-                        );
-                      }),
-                      TextButton.icon(
-                        onPressed: () {
-                          double lastWeight = 0;
-                          int lastReps = 0;
-                          if (routineExercise.sets.isNotEmpty) {
-                            lastWeight = routineExercise.sets.last.weight;
-                            lastReps = routineExercise.sets.last.reps;
-                          }
-                          ref
-                              .read(activeWorkoutProvider.notifier)
-                              .addSet(exIndex, lastWeight, lastReps);
-                        },
-                        icon: const Icon(Icons.add),
-                        label: const Text('Add Set'),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-
-          if (activeState.isTimerActive && activeState.restTimerSeconds != null)
-            Positioned(
-              bottom: 16,
-              left: 16,
-              right: 16,
-              child: GestureDetector(
-                onTap: () =>
-                    ref.read(activeWorkoutProvider.notifier).stopRestTimer(),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 12,
-                    horizontal: 24,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primaryColor,
-                    borderRadius: BorderRadius.circular(30),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.timer, color: Colors.white),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Rest: ${activeState.restTimerSeconds}s',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                          onPressed: () => _openPlateCalculator(set, isBarbell),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      const Icon(Icons.close, color: Colors.white, size: 16),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-          Align(
-            alignment: Alignment.topCenter,
-            child: ConfettiWidget(
-              confettiController: _confettiController,
-              blastDirectionality: BlastDirectionality.explosive,
-              shouldLoop: false,
-              colors: const [
-                AppTheme.primaryColor,
-                AppTheme.accentColor,
-                Colors.white,
-                Colors.yellow,
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSetRow(
-    int exIndex,
-    int setIndex,
-    SetLog setLog,
-    RoutineExercise routineExercise,
-  ) {
-    return Dismissible(
-      key: ValueKey('${setLog.id}_$setIndex'),
-      direction: DismissDirection.startToEnd,
-      background: Container(
-        color: AppTheme.accentColor.withOpacity(0.2),
-        alignment: Alignment.centerLeft,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: const Icon(Icons.check, color: AppTheme.accentColor),
-      ),
-      onDismissed: (direction) {},
-      confirmDismiss: (direction) async {
-        if (!setLog.isCompleted) {
-          _triggerHapticAndConfetti();
-          _triggerVisualPR(setLog.weight, setLog.reps, routineExercise);
-        }
-        ref
-            .read(activeWorkoutProvider.notifier)
-            .toggleSetComplete(exIndex, setIndex);
-        return false; // Prevent actual dismissal
-      },
-      child: Container(
-        color: setLog.isCompleted
-            ? AppTheme.accentColor.withOpacity(0.1)
-            : Colors.transparent,
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Row(
-          children: [
-            SizedBox(
-              width: 40,
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: setLog.isCompleted
-                      ? AppTheme.accentColor
-                      : AppTheme.surfaceColor,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  '${setIndex + 1}',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: setLog.isCompleted
-                        ? AppTheme.backgroundColor
-                        : AppTheme.textPrimaryColor,
-                  ),
-                ),
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: TextFormField(
-                  initialValue: setLog.weight > 0
-                      ? setLog.weight.toString()
-                      : '',
-                  keyboardType: TextInputType.number,
-                  textAlign: TextAlign.center,
-                  decoration: InputDecoration(
-                    hintText: '-',
-                    isDense: true,
-                    filled: true,
-                    fillColor: AppTheme.surfaceColor,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
+                      ],
                     ),
                   ),
-                  onChanged: (val) {
-                    ref
-                        .read(activeWorkoutProvider.notifier)
-                        .updateSet(
-                          exIndex,
-                          setIndex,
-                          weight: double.tryParse(val),
-                        );
-                  },
-                ),
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: TextFormField(
-                  initialValue: setLog.reps > 0 ? setLog.reps.toString() : '',
-                  keyboardType: TextInputType.number,
-                  textAlign: TextAlign.center,
-                  decoration: InputDecoration(
-                    hintText: '-',
-                    isDense: true,
-                    filled: true,
-                    fillColor: AppTheme.surfaceColor,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
+                  const SizedBox(width: 16),
+                  SizedBox(
+                    width: 60,
+                    child: TextFormField(
+                      key: ValueKey('reps_${set.id}_${set.reps}'),
+                      initialValue: set.reps.toString(),
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(labelText: 'reps'),
+                      onChanged: (val) {
+                        ref
+                            .read(
+                              activeSessionProvider(widget.sessionId).notifier,
+                            )
+                            .dispatch(
+                              SetUpdatedEvent(
+                                id: _uuid.v4(),
+                                sessionId: widget.sessionId,
+                                timestamp: DateTime.now(),
+                                payload: {
+                                  'setId': set.id,
+                                  'reps': int.tryParse(val) ?? set.reps,
+                                },
+                              ),
+                            );
+                      },
                     ),
                   ),
-                  onChanged: (val) {
-                    ref
-                        .read(activeWorkoutProvider.notifier)
-                        .updateSet(exIndex, setIndex, reps: int.tryParse(val));
-                  },
-                ),
+                  const SizedBox(width: 16),
+                  Checkbox(
+                    value: set.isCompleted,
+                    activeColor: Colors.tealAccent,
+                    checkColor: Colors.black,
+                    onChanged: (val) {
+                      ref
+                          .read(
+                            activeSessionProvider(widget.sessionId).notifier,
+                          )
+                          .dispatch(
+                            SetUpdatedEvent(
+                              id: _uuid.v4(),
+                              sessionId: widget.sessionId,
+                              timestamp: DateTime.now(),
+                              payload: {
+                                'setId': set.id,
+                                'isCompleted': val ?? false,
+                              },
+                            ),
+                          );
+                    },
+                  ),
+                ],
               ),
             ),
-            GestureDetector(
-              onTap: () {
-                if (!setLog.isCompleted) {
-                  _triggerHapticAndConfetti();
-                  _triggerVisualPR(setLog.weight, setLog.reps, routineExercise);
-                }
-                ref
-                    .read(activeWorkoutProvider.notifier)
-                    .toggleSetComplete(exIndex, setIndex);
-              },
-              child: Container(
-                width: 48,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: setLog.isCompleted
-                      ? AppTheme.accentColor
-                      : AppTheme.surfaceColor,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  Icons.check,
-                  color: setLog.isCompleted
-                      ? AppTheme.backgroundColor
-                      : AppTheme.textSecondaryColor,
-                ),
-              ),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

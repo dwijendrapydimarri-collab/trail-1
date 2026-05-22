@@ -1,7 +1,6 @@
 import 'package:app/models/user_progress.dart';
 import 'package:app/models/workout_session.dart';
 import 'package:app/models/personal_record.dart';
-import 'package:app/models/advanced/gamification_models.dart';
 
 class ProgressionService {
   UserProgress calculateNewProgress(

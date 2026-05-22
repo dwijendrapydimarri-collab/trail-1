@@ -1,8 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:app/models/workout_session.dart';
 import 'package:app/models/routine.dart';
-import 'package:app/models/exercise.dart';
-import 'package:app/models/set_log.dart';
 import 'package:app/services/advanced/training_load_service.dart';
 import 'package:app/services/advanced/muscle_balance_service.dart';
 import 'package:app/services/advanced/rival_gap_service.dart';

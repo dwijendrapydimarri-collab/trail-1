@@ -1,214 +1,191 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:app/providers/leaderboard_providers.dart';
-import 'package:app/models/user_leaderboard_stats.dart';
-import 'package:app/ui/theme/app_theme.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:flutter/services.dart';
 
-class LeaderboardScreen extends ConsumerStatefulWidget {
+// Dummy user class for demo purposes
+class LeaderboardUser {
+  final String id;
+  final String name;
+  final int level;
+  final double volume;
+
+  LeaderboardUser(this.id, this.name, this.level, this.volume);
+}
+
+class LeaderboardScreen extends ConsumerWidget {
   const LeaderboardScreen({super.key});
 
   @override
-  ConsumerState<LeaderboardScreen> createState() => _LeaderboardScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Generate dummy rivals for UI demo
+    final rivals = [
+      LeaderboardUser('1', 'ChadThundercock', 42, 12500),
+      LeaderboardUser('2', 'GymBro99', 38, 11200),
+      LeaderboardUser('user', 'You', 15, 9500),
+      LeaderboardUser('4', 'IronMaiden', 20, 8000),
+    ];
 
-class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Leaderboard'),
-        bottom: TabBar(
-          controller: _tabController,
-          indicatorColor: AppTheme.accentColor,
-          labelColor: AppTheme.accentColor,
-          unselectedLabelColor: AppTheme.textSecondaryColor,
-          tabs: const [
-            Tab(text: 'Weekly Volume'),
-            Tab(text: 'Monthly Volume'),
-          ],
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildLeaderboardList(ref.watch(weeklyLeaderboardProvider), true),
-          _buildLeaderboardList(ref.watch(monthlyLeaderboardProvider), false),
+      appBar: AppBar(title: const Text('Leaderboard'), centerTitle: true),
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1E1E1E),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.redAccent.withOpacity(0.5)),
+              ),
+              child: Column(
+                children: [
+                  const Text(
+                    '🏆 RIVAL ALERT 🏆',
+                    style: TextStyle(
+                      color: Colors.redAccent,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'You are 1,700kg of volume away from overtaking GymBro99!',
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.redAccent,
+                      foregroundColor: Colors.black,
+                    ),
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Routine cloned!')),
+                      );
+                    },
+                    child: const Text('CLONE THEIR ROUTINE'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SliverList(
+            delegate: SliverChildBuilderDelegate((context, index) {
+              final rival = rivals[index];
+              final isMe = rival.id == 'user';
+              return _LeaderboardRow(rival: rival, rank: index + 1, isMe: isMe);
+            }, childCount: rivals.length),
+          ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildLeaderboardList(
-    AsyncValue<List<UserLeaderboardStats>> asyncStats,
-    bool isWeekly,
-  ) {
-    return asyncStats.when(
-      data: (stats) {
-        if (stats.isEmpty) {
-          return const Center(child: Text('No data yet'));
-        }
+class _LeaderboardRow extends StatefulWidget {
+  final LeaderboardUser rival;
+  final int rank;
+  final bool isMe;
 
-        return ListView.builder(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          itemCount: stats.length,
-          itemBuilder: (context, index) {
-            final stat = stats[index];
-            final rank = index + 1;
-            final volume = isWeekly ? stat.weeklyVolume : stat.monthlyVolume;
-            // In a real app we'd compare stat.userId with current user's ID
-            final isCurrentUser = stat.username == 'You';
+  const _LeaderboardRow({
+    required this.rival,
+    required this.rank,
+    required this.isMe,
+  });
 
-            return _buildLeaderboardCard(stat, rank, volume, isCurrentUser);
-          },
-        );
-      },
-      loading: () => ListView.builder(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        itemCount: 5,
-        itemBuilder: (context, index) => Shimmer.fromColors(
-          baseColor: AppTheme.surfaceColor,
-          highlightColor: AppTheme.surfaceColor.withOpacity(0.5),
-          child: Card(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Container(height: 80),
-          ),
-        ),
-      ),
-      error: (error, stack) => Center(child: Text('Error: $error')),
+  @override
+  State<_LeaderboardRow> createState() => _LeaderboardRowState();
+}
+
+class _LeaderboardRowState extends State<_LeaderboardRow>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  bool _kudosSent = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
     );
   }
 
-  Widget _buildLeaderboardCard(
-    UserLeaderboardStats stat,
-    int rank,
-    double volume,
-    bool isCurrentUser,
-  ) {
-    final rankColor = _getRankColor(rank);
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      decoration: BoxDecoration(
-        gradient: isCurrentUser
-            ? LinearGradient(
-                colors: [
-                  AppTheme.primaryColor.withOpacity(0.4),
-                  AppTheme.accentColor.withOpacity(0.2),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              )
-            : null,
-        color: isCurrentUser ? null : AppTheme.surfaceColor,
-        borderRadius: BorderRadius.circular(16),
-        border: isCurrentUser
-            ? Border.all(color: AppTheme.accentColor, width: 1.5)
-            : null,
-        boxShadow: isCurrentUser
-            ? [
-                BoxShadow(
-                  color: AppTheme.accentColor.withOpacity(0.3),
-                  blurRadius: 8,
-                ),
-              ]
-            : [],
+  Future<void> _sendKudos() async {
+    if (_kudosSent) return;
+
+    try {
+      bool? hasVibrator = await HapticFeedback.heavyImpact()
+          .then((_) => true)
+          .catchError((_) => false);
+      // We just call it and catch errors if simulator lacks it.
+    } catch (e) {
+      // Ignore vibration error on simulators
+    }
+
+    setState(() => _kudosSent = true);
+    _controller.forward(from: 0.0);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Kudos sent to ${widget.rival.name}! (Syncing...)'),
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      color: widget.isMe
+          ? Colors.teal.withOpacity(0.2)
+          : const Color(0xFF1E1E1E),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: CircleAvatar(
-          backgroundColor: rankColor ?? AppTheme.backgroundColor,
+          backgroundColor: widget.rank == 1
+              ? Colors.amber
+              : (widget.rank == 2 ? Colors.grey[400] : Colors.brown),
           child: Text(
-            '#$rank',
-            style: TextStyle(
-              color: rankColor != null ? Colors.black : Colors.white,
+            '#${widget.rank}',
+            style: const TextStyle(
+              color: Colors.black,
               fontWeight: FontWeight.bold,
             ),
           ),
         ),
-        title: Row(
-          children: [
-            Text(
-              stat.username,
-              style: TextStyle(
-                fontWeight: isCurrentUser ? FontWeight.bold : FontWeight.w500,
-                fontSize: 16,
-              ),
-            ),
-            if (isCurrentUser)
-              Padding(
-                padding: const EdgeInsets.only(left: 8.0),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.accentColor,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Text(
-                    'YOU',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+        title: Text(
+          widget.rival.name,
+          style: TextStyle(
+            fontWeight: widget.isMe ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
+        subtitle: Text('Lvl ${widget.rival.level} • ${widget.rival.volume}kg'),
+        trailing: widget.isMe
+            ? null
+            : IconButton(
+                icon: AnimatedBuilder(
+                  animation: _controller,
+                  builder: (context, child) {
+                    return Transform.scale(
+                      scale: 1.0 + (_controller.value * 0.5),
+                      child: Icon(
+                        _kudosSent
+                            ? Icons.local_fire_department
+                            : Icons.favorite_border,
+                        color: _kudosSent ? Colors.orange : Colors.grey,
+                      ),
+                    );
+                  },
                 ),
+                onPressed: _sendKudos,
               ),
-          ],
-        ),
-        trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              '${(volume / 1000).toStringAsFixed(1)}k kg',
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-                color: AppTheme.accentColor,
-              ),
-            ),
-            const Text(
-              'Lifted',
-              style: TextStyle(
-                fontSize: 12,
-                color: AppTheme.textSecondaryColor,
-              ),
-            ),
-          ],
-        ),
       ),
     );
-  }
-
-  Color? _getRankColor(int rank) {
-    switch (rank) {
-      case 1:
-        return const Color(0xFFFFD700); // Gold
-      case 2:
-        return const Color(0xFFC0C0C0); // Silver
-      case 3:
-        return const Color(0xFFCD7F32); // Bronze
-      default:
-        return null;
-    }
   }
 }
