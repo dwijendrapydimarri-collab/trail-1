@@ -14,7 +14,10 @@ class SyncQueueItem {
 }
 
 class ConflictResolver {
-  Map<String, dynamic> resolve(Map<String, dynamic> local, Map<String, dynamic> remote) {
+  Map<String, dynamic> resolve(
+    Map<String, dynamic> local,
+    Map<String, dynamic> remote,
+  ) {
     // Simple Last-Write-Wins strategy based on updated_at timestamp
     final localTime = local['updated_at'] as DateTime?;
     final remoteTime = remote['updated_at'] as DateTime?;

@@ -209,8 +209,8 @@ class _ChartsScreenState extends ConsumerState<ChartsScreen> {
     AsyncValue<List<dynamic>> exercisesAsync,
     String muscleGroup,
   ) {
-    final prs = prsAsync.valueOrNull ?? [];
-    final exercises = exercisesAsync.valueOrNull ?? [];
+    final prs = prsAsync.value ?? [];
+    final exercises = exercisesAsync.value ?? [];
 
     final muscleGroupExerciseIds = exercises
         .where((e) => e.muscleGroup == muscleGroup)
@@ -242,7 +242,7 @@ class _ChartsScreenState extends ConsumerState<ChartsScreen> {
   List<BarChartGroupData> _buildHeatmapGroups(
     AsyncValue<List<WorkoutSession>> historyAsync,
   ) {
-    final sessions = historyAsync.valueOrNull ?? [];
+    final sessions = historyAsync.value ?? [];
 
     if (sessions.isEmpty) {
       return []; // Return empty graph rather than mock if no history.

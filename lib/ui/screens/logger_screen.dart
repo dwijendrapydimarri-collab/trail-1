@@ -1,23 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
-import 'package:app/models/routine.dart';
 import 'package:app/models/workout_session.dart';
+import 'package:app/models/set_log.dart';
 import 'package:app/providers/workout_providers.dart';
-import 'package:app/providers/user_providers.dart';
+import 'package:app/providers/user_progress_provider.dart';
 import 'package:app/models/advanced/event_sourcing.dart';
 import 'package:app/ui/screens/recap_screen.dart';
 import 'package:app/ui/widgets/plate_calculator_sheet.dart';
 
 class LoggerScreen extends ConsumerStatefulWidget {
-  final Routine routine;
-  final String sessionId;
-
-  const LoggerScreen({
-    super.key,
-    required this.routine,
-    required this.sessionId,
-  });
+  const LoggerScreen({super.key});
 
   @override
   ConsumerState<LoggerScreen> createState() => _LoggerScreenState();
@@ -25,55 +18,38 @@ class LoggerScreen extends ConsumerStatefulWidget {
 
 class _LoggerScreenState extends ConsumerState<LoggerScreen> {
   final _uuid = const Uuid();
+  final String sessionId = 'current_session';
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final session = ref.read(activeSessionProvider(widget.sessionId));
+      final session = ref.read(activeSessionProvider(sessionId));
       if (session == null) {
         ref
-            .read(activeSessionProvider(widget.sessionId).notifier)
+            .read(activeSessionProvider(sessionId).notifier)
             .dispatch(
               WorkoutStartedEvent(
                 id: _uuid.v4(),
-                sessionId: widget.sessionId,
+                sessionId: sessionId,
                 timestamp: DateTime.now(),
                 payload: {
-                  'routineId': widget.routine.id,
-                  'routineName': widget.routine.name,
+                  'routineId': 'custom',
+                  'routineName': 'Custom Workout',
                 },
               ),
             );
-
-        for (var exercise in widget.routine.exercises) {
-          ref
-              .read(activeSessionProvider(widget.sessionId).notifier)
-              .dispatch(
-                SetLoggedEvent(
-                  id: _uuid.v4(),
-                  sessionId: widget.sessionId,
-                  timestamp: DateTime.now(),
-                  payload: {
-                    'setId': _uuid.v4(),
-                    'exerciseId': exercise.id,
-                    'weight': 0.0,
-                    'reps': 0,
-                  },
-                ),
-              );
-        }
       }
     });
   }
 
   void _finishWorkout(WorkoutSession session) {
     ref
-        .read(activeSessionProvider(widget.sessionId).notifier)
+        .read(activeSessionProvider(sessionId).notifier)
         .dispatch(
           WorkoutFinishedEvent(
             id: _uuid.v4(),
-            sessionId: widget.sessionId,
+            sessionId: sessionId,
             timestamp: DateTime.now(),
             payload: {
               'xpEarned': session.sets.where((s) => s.isCompleted).length * 10,
@@ -81,23 +57,24 @@ class _LoggerScreenState extends ConsumerState<LoggerScreen> {
           ),
         );
 
-    final finalSession = ref.read(activeSessionProvider(widget.sessionId));
+    final finalSession = ref.read(activeSessionProvider(sessionId));
 
-    // Force explicit invalidations
     ref.invalidate(userProgressProvider);
     ref.invalidate(workoutHistoryProvider);
     ref.invalidate(personalRecordsProvider);
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) =>
-            RecapScreen(session: finalSession!, newPrs: const []),
-      ),
-    );
+    if (finalSession != null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              RecapScreen(session: finalSession, newPrs: const []),
+        ),
+      );
+    }
   }
 
-  void _openPlateCalculator(ExerciseSet set, bool isBarbell) async {
+  void _openPlateCalculator(SetLog set, bool isBarbell) async {
     final result = await showModalBottomSheet<double>(
       context: context,
       isScrollControlled: true,
@@ -108,11 +85,11 @@ class _LoggerScreenState extends ConsumerState<LoggerScreen> {
 
     if (result != null) {
       ref
-          .read(activeSessionProvider(widget.sessionId).notifier)
+          .read(activeSessionProvider(sessionId).notifier)
           .dispatch(
             SetUpdatedEvent(
               id: _uuid.v4(),
-              sessionId: widget.sessionId,
+              sessionId: sessionId,
               timestamp: DateTime.now(),
               payload: {'setId': set.id, 'weight': result},
             ),
@@ -122,10 +99,10 @@ class _LoggerScreenState extends ConsumerState<LoggerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final session = ref.watch(activeSessionProvider(widget.sessionId));
+    final session = ref.watch(activeSessionProvider(sessionId));
 
     if (session == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(body: Center(child: Text('No active workout')));
     }
 
     return Scaffold(
@@ -173,14 +150,12 @@ class _LoggerScreenState extends ConsumerState<LoggerScreen> {
                             onChanged: (val) {
                               ref
                                   .read(
-                                    activeSessionProvider(
-                                      widget.sessionId,
-                                    ).notifier,
+                                    activeSessionProvider(sessionId).notifier,
                                   )
                                   .dispatch(
                                     SetUpdatedEvent(
                                       id: _uuid.v4(),
-                                      sessionId: widget.sessionId,
+                                      sessionId: sessionId,
                                       timestamp: DateTime.now(),
                                       payload: {
                                         'setId': set.id,
@@ -213,13 +188,11 @@ class _LoggerScreenState extends ConsumerState<LoggerScreen> {
                       decoration: const InputDecoration(labelText: 'reps'),
                       onChanged: (val) {
                         ref
-                            .read(
-                              activeSessionProvider(widget.sessionId).notifier,
-                            )
+                            .read(activeSessionProvider(sessionId).notifier)
                             .dispatch(
                               SetUpdatedEvent(
                                 id: _uuid.v4(),
-                                sessionId: widget.sessionId,
+                                sessionId: sessionId,
                                 timestamp: DateTime.now(),
                                 payload: {
                                   'setId': set.id,
@@ -237,13 +210,11 @@ class _LoggerScreenState extends ConsumerState<LoggerScreen> {
                     checkColor: Colors.black,
                     onChanged: (val) {
                       ref
-                          .read(
-                            activeSessionProvider(widget.sessionId).notifier,
-                          )
+                          .read(activeSessionProvider(sessionId).notifier)
                           .dispatch(
                             SetUpdatedEvent(
                               id: _uuid.v4(),
-                              sessionId: widget.sessionId,
+                              sessionId: sessionId,
                               timestamp: DateTime.now(),
                               payload: {
                                 'setId': set.id,
@@ -258,6 +229,26 @@ class _LoggerScreenState extends ConsumerState<LoggerScreen> {
             ),
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          ref
+              .read(activeSessionProvider(sessionId).notifier)
+              .dispatch(
+                SetLoggedEvent(
+                  id: _uuid.v4(),
+                  sessionId: sessionId,
+                  timestamp: DateTime.now(),
+                  payload: {
+                    'setId': _uuid.v4(),
+                    'exerciseId': 'New Exercise',
+                    'weight': 0.0,
+                    'reps': 0,
+                  },
+                ),
+              );
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }

@@ -1,4 +1,3 @@
-
 class EggTransaction {
   final String id;
   final int amount;
@@ -42,7 +41,10 @@ class LeaderboardSnapshot {
 }
 
 class LeaderboardProjectionEngine {
-  LeaderboardSnapshot generateSnapshot(String timeframe, Map<String, List<Map<String, dynamic>>> allSessions) {
+  LeaderboardSnapshot generateSnapshot(
+    String timeframe,
+    Map<String, List<Map<String, dynamic>>> allSessions,
+  ) {
     Map<String, double> rankings = {};
 
     allSessions.forEach((userId, sessions) {
